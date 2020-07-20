@@ -1,0 +1,6 @@
+{
+  "bucket": "23people-model",
+  "prefix": "python/",
+  "model": "googlesheet",
+  "main": "googlesheet"
+}

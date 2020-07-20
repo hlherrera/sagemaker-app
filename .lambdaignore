@@ -1,0 +1,13 @@
+Dockerfile
+README.md
+start.sh
+nodemon-debug.sh
+.dockerignore
+.gitignore
+test
+src
+layers
+resources
+.vscode
+.sonarlint
+.serverless

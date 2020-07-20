@@ -1,0 +1,14 @@
+ChameleonUploader:
+  name: fnChameleonUploader-${self:custom.stage}
+  warmup:
+    enabled: false
+  package:
+    exclude:
+      - ./**
+      - node_modules/**
+    include:
+      - functions/storage/s3download.js
+      - functions/storage/s3upload.js
+      - functions/storage/chameleon-uploader.js
+  handler: functions/storage/chameleon-uploader.handler
+  memorySize: 128

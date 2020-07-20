@@ -1,0 +1,10 @@
+node_modules
+npm-debug.log
+.sonarlint
+.vscode
+.serverless
+.gitignore
+_warmup
+coverage
+dist
+layers

@@ -1,0 +1,15 @@
+API:
+  name: "api-chameleon-${self:custom.stage}"
+  handler: dist/index.handler
+  timeout: 30
+  warmup:
+    enabled: false
+  events:
+    - http:
+        cors: true
+        path: "/"
+        method: any
+    - http:
+        cors: true
+        path: "{proxy+}"
+        method: any

@@ -1,0 +1,10 @@
+{
+  "bucket": "23people-model",
+  "prefix": "sklearn/",
+  "model": "sk-predictor",
+  "main": "sk-predictor",
+  "sepal_length": 1,
+  "sepal_width": 2,
+  "petal_length": 1,
+  "petal_width": 1
+}

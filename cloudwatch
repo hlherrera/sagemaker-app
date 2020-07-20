@@ -1,0 +1,23 @@
+// classification status
+fields @timestamp, @message, @requestId
+| filter @message like /(- \[app\] \[method\] \[url\]\:)/
+| filter @message like /(\[GET\] \[\/classification\/)/
+| parse '[app] [method] [url]: * [GET] [/classification/*]' as appid, taskid
+| sort @timestamp desc
+| limit 125
+
+// login
+fields @timestamp, @message, @requestId
+| filter @message like /(- \[app\] \[method\] \[url\]\:)/
+| filter @message like /(\/login\/)/
+| parse '[app] [method] [url]: * [POST] [/login/]' as appid
+| sort @timestamp desc
+| limit 125
+
+// classification
+fields @timestamp, @message, @requestId
+| filter @message like /(- \[app\] \[method\] \[url\]\:)/
+| filter @message like /(\[POST\] \[\/classification\/)/
+| parse '[app] [method] [url]: * [POST] [/classification/*]' as appid, taskid
+| sort @timestamp desc
+| limit 125

@@ -1,0 +1,62 @@
+- Effect: "Allow"
+  Action:
+    - s3:GetObject
+    - s3:PutObject
+    - s3:DeleteObject
+    - s3:GetObjectAcl
+    - s3:ListBucket
+  Resource: "arn:aws:s3:::*"
+
+- Effect: "Allow"
+  Action:
+    - iam:PassRole
+    - sts:AssumeRole
+  Resource: "arn:aws:iam::*:role/*"
+
+- Effect: "Allow"
+  Action:
+    - logs:CreateLogGroup
+    - logs:CreateLogStream
+    - logs:PutLogEvents
+  Resource: "arn:aws:logs:*:*:log-group:*"
+
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+    - dynamodb:Scan
+    - dynamodb:GetItem
+    - dynamodb:PutItem
+    - dynamodb:UpdateItem
+    - dynamodb:DeleteItem
+  Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:*"
+
+- Effect: "Allow"
+  Action:
+    - states:StartExecution
+    - states:DescribeExecution
+  Resource: "*"
+
+- Effect: "Allow"
+  Action:
+    - ecr:DescribeRepositories
+  Resource: "arn:aws:ecr:${opt:region, self:provider.region}:*:*"
+
+- Effect: "Allow"
+  Action:
+    - kms:Encrypt
+    - kms:Decrypt,
+    - kms:ReEncrypt*,
+    - kms:GenerateDataKey*
+    - kms:DescribeKey
+  Resource: "*"
+
+- Effect: "Allow"
+  Action:
+    - sagemaker:UpdateEndpoint
+    - sagemaker:CreateModel
+    - sagemaker:CreateEndpointConfig
+    - sagemaker:CreateEndpoint
+    - sagemaker:DescribeEndpoint
+    - sagemaker:ListEndpoints
+    - sagemaker:InvokeEndpoint
+  Resource: "*"

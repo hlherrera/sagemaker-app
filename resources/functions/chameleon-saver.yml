@@ -1,0 +1,11 @@
+ChameleonSaver:
+  name: fnChameleonSaver-${self:custom.stage}
+  package:
+    exclude:
+      - ./**
+      - node_modules/**
+    include:
+      - functions/db/dynamo.db.js
+      - functions/db/chameleon-saver.js
+  handler: functions/db/chameleon-saver.handler
+  memorySize: 128

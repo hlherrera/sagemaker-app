@@ -1,0 +1,59 @@
+service: ml-services
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  bucket: 23people-model
+
+provider:
+  name: aws
+  stage: ${opt:stage, 'dev'}
+  runtime: nodejs12.x
+  environment:
+    # JWT conf
+    JWT_TTL_SECONDS: 600
+    JWT_SECRET: ${ssm:/classifier/document}
+
+    # Chameleon Bucket
+    BUCKET_MODELS: ${self:custom.bucket}
+
+    # Chameleon client db table
+    CHAMELEON_PROJECTS_TABLE: chameleon-clients-${self:custom.stage}
+
+    # Chameleon cache table name
+    CACHE_TABLE_NAME: chameleon-cache
+
+    # Chameleon State Machine
+    STATE_MACHINE_MODEL_DEPLOY: "arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:SMDirectModelDeployment"
+    # STATE_MACHINE_MODEL_DEPLOY: ${cf:ml-services-${self:custom.stage}.SMDirectModelDeploymentArn}
+
+  iamRoleStatements: ${file(resources/roles.yml)}
+
+plugins:
+  - serverless-plugin-warmup
+  - serverless-pseudo-parameters
+  - serverless-step-functions
+  - serverless-offline
+package:
+  individually: true
+  exclude:
+    - .git/**
+    - src/**
+    - test/**
+    - dist/**/*.map
+    - node_modules/aws-sdk/**
+    - nodemon.json
+    - README.md
+
+functions:
+  - ${file(resources/functions/chameleon-api.yml)}
+  - ${file(resources/functions/chameleon-uploader.yml)}
+  - ${file(resources/functions/chameleon-deploy.yml)}
+  - ${file(resources/functions/chameleon-saver.yml)}
+
+stepFunctions:
+  stateMachines:
+    SMDirectModelDeployment: ${file(resources/state-machines/chameleon-model-deploy.yml)}
+
+resources:
+  - ${file(resources/elements.yml)}
+  - ${file(resources/outputs.yml)}

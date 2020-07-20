@@ -1,0 +1,12 @@
+ModelDeployment:
+  name: fnModelDeployment-${self:custom.stage}
+  runtime: python3.8
+  warmup:
+    enabled: false
+  package:
+    exclude:
+      - ./**
+      - node_modules/**
+    include:
+      - functions/model/main.py
+  handler: functions/model/main.deploy

@@ -1,0 +1,39 @@
+name: SMDirectModelDeployment
+definition:
+  Comment: "State Machine for AWS Multi Model Deployment from S3 Model storage"
+  StartAt: UploadModel
+  States:
+    # Upload Model to Chameleon S3
+    UploadModel:
+      Type: Task
+      ResultPath: "$"
+      Resource:
+        Fn::GetAtt: [ChameleonUploader, Arn]
+      Next: SaveModelToClientDB
+
+    # Save Model to DynamoDB Client App
+    SaveModelToClientDB:
+      Type: Task
+      Resource:
+        Fn::GetAtt: [ChameleonSaver, Arn]
+      Next: CheckPreviousDeployed
+
+    # Check if the Model type has been deployed before
+    CheckPreviousDeployed:
+      Type: Choice
+      Choices:
+        - Variable: "$.deployed"
+          NumericEquals: 0
+          Next: DeployModel
+      Default: FinalState
+
+    # Deploy Model returning Endpoint
+    DeployModel:
+      Type: Task
+      Resource:
+        Fn::GetAtt: [ModelDeployment, Arn]
+      Next: FinalState
+
+    FinalState:
+      Type: Pass
+      End: true
