@@ -18,7 +18,7 @@ export class S3DeploymentService implements DeploymentService {
       startDate: new Date(),
       executionArn: null,
     };
-    const serverBucket = process.env.BUCKET_MODELS;
+    const serverBucket = process.env.BUCKET;
     const serverPrefix = `${appId}/${model.type}/${modelName}.tar.gz`;
     const s3Path = `s3:///${serverBucket}/${serverPrefix}`.replace('//', '/');
 
@@ -37,6 +37,7 @@ export class S3DeploymentService implements DeploymentService {
           type: model.type,
           prefix: `${appId}/${model.type}`,
           mainProgram: model.fn,
+          'instance-type': 'ml.m5.large',
         },
         chameleonStorage: {
           key: s3Path,

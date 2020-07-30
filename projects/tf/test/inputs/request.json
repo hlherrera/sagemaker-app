@@ -1,0 +1,9 @@
+{
+  "bucket": "23people-model",
+  "prefix": "tf/",
+  "model": "tf-model",
+  "main": "inference",
+  "params": {
+    "url": "https://storage.googleapis.com/download.tensorflow.org/example_images/grace_hopper.jpg"
+  }
+}

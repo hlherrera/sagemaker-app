@@ -2,4 +2,4 @@ Outputs:
   StateMachineDirectModelDeployment:
     Description: The ARN of the direct deploy model state machine
     Value:
-      Ref: SMDirectModelDeployment
+      Ref: PythonModelDeployment

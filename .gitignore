@@ -14,6 +14,10 @@ _warmup
 .vscode
 .env
 .npmrc
+
+#exclude compressed
+**/*.tar.gz
+**/__pycache__
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml

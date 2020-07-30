@@ -22,11 +22,10 @@ RUN curl -fSsL -O https://bootstrap.pypa.io/3.4/get-pip.py && \
 RUN pip install --upgrade pip
 
 RUN pip --no-cache-dir install \
-        numpy \
-        scipy \
-        sklearn \
+        numpy==1.18.5 \
         pandas \
         flask \
+        pillow \
         gevent \
         gunicorn \
         boto3 \

@@ -14,16 +14,18 @@ provider:
     JWT_SECRET: ${ssm:/classifier/document}
 
     # Chameleon Bucket
-    BUCKET_MODELS: ${self:custom.bucket}
+    BUCKET: ${self:custom.bucket}
 
-    # Chameleon client db table
+    # Chameleon clients db table
     CHAMELEON_PROJECTS_TABLE: chameleon-clients-${self:custom.stage}
+    CHAMELEON_APP_LOGS_TABLE: chameleon-clients-logs-${self:custom.stage}
+    CHAMELEON_APP_MONITOR_TABLE: chameleon-clients-monitor-${self:custom.stage}
 
     # Chameleon cache table name
     CACHE_TABLE_NAME: chameleon-cache
 
     # Chameleon State Machine
-    STATE_MACHINE_MODEL_DEPLOY: "arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:SMDirectModelDeployment"
+    STATE_MACHINE_MODEL_DEPLOY: "arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:PythonModelDeployment"
     # STATE_MACHINE_MODEL_DEPLOY: ${cf:ml-services-${self:custom.stage}.SMDirectModelDeploymentArn}
 
   iamRoleStatements: ${file(resources/roles.yml)}
@@ -39,6 +41,9 @@ package:
     - .git/**
     - src/**
     - test/**
+    - projects/**
+    - resources/**
+    - docker-images/**
     - dist/**/*.map
     - node_modules/aws-sdk/**
     - nodemon.json
@@ -52,7 +57,7 @@ functions:
 
 stepFunctions:
   stateMachines:
-    SMDirectModelDeployment: ${file(resources/state-machines/chameleon-model-deploy.yml)}
+    PythonModelDeployment: ${file(resources/state-machines/chameleon-model-deploy.yml)}
 
 resources:
   - ${file(resources/elements.yml)}

@@ -40,23 +40,18 @@ import { ChameleonModelInterceptor } from './chameleonModel.interceptor';
 import { DeploymentService } from './services/deployment.service';
 import { SageMakerService } from '../aws/sagemaker/sagemaker.service';
 
-const enum RESOURCE_TYPE {
-  ENDPOINT = 'ep',
-  ENDPOINT_CONFIG = 'cfg',
-}
 @Controller('model')
 @ApiTags('model')
 export class ModelController {
-  private getResourceName(
+  private getEndpointName(
     project: ChameleonProject,
     model: ChameleonModel,
-    resourceType: RESOURCE_TYPE,
   ): string {
     const projectPrefix = (project.id ?? '').slice(0, 8);
     const projectSufix = (project.id ?? '').slice(-12);
     const modelPrefix = (model.name ?? '').slice(0, 8);
     const modelSufix = (model.name ?? '').slice(-12);
-    return `${projectPrefix}${projectSufix}-${model.type}-${modelPrefix}${modelSufix}-${resourceType}`;
+    return `${projectPrefix}${projectSufix}-${model.type}-${modelPrefix}${modelSufix}`;
   }
 
   constructor(
@@ -107,11 +102,7 @@ export class ModelController {
   @Post('inference/:model')
   async predict(@DataProject() project: ChameleonProject, @Body() body: any) {
     const model: ChameleonModel = body.__model;
-    const endpointName = this.getResourceName(
-      project,
-      model,
-      RESOURCE_TYPE.ENDPOINT,
-    );
+    const endpointName = this.getEndpointName(project, model);
 
     const status = await this.sm
       .status(endpointName)
@@ -156,11 +147,7 @@ export class ModelController {
   @Get('deployment/:model')
   async modelStatus(@DataProject() project: ChameleonProject, @Req() req: any) {
     const model: ChameleonModel = req.body['__model'];
-    const endpointName = this.getResourceName(
-      project,
-      model,
-      RESOURCE_TYPE.ENDPOINT,
-    );
+    const endpointName = this.getEndpointName(project, model);
 
     return this.sm.status(endpointName);
   }

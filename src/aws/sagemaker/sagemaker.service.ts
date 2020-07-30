@@ -53,7 +53,7 @@ export class SageMakerService {
         return {
           CreationTime: null,
           EndpointStatus: 'Failed',
-          FailureReason: err,
+          FailureReason: { ...err, message: 'Internal error!' },
         };
       });
 

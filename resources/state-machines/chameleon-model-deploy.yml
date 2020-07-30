@@ -1,4 +1,4 @@
-name: SMDirectModelDeployment
+name: PythonModelDeployment
 definition:
   Comment: "State Machine for AWS Multi Model Deployment from S3 Model storage"
   StartAt: UploadModel

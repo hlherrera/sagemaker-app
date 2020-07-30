@@ -3,7 +3,7 @@ import re
 import boto3
 
 EXECUTION_ROLE = 'arn:aws:iam::657799620713:role/service-role/AmazonSageMaker-ExecutionRole-20190805T172704'
-INSTANCE_TYPE = 'ml.t2.medium'
+INSTANCE_TYPE = 'ml.m5.large'
 SINGLE_MODELS = ['python3']
 
 sagemaker = boto3.client('sagemaker')
@@ -14,6 +14,7 @@ def deploy(event, context):
     app_client = event['appClient']
     model_name = event['clientModel']['modelName']
     model_type = event['clientModel']['type']
+    model_instance = event['clientModel']['instance-type']
 
     repositories = ecr.describe_repositories()
     [r] = list(filter(lambda item: item['repositoryName'] == model_type,
@@ -21,43 +22,38 @@ def deploy(event, context):
     container = '{}:latest'.format(r['repositoryUri'])
 
     print('Creating model resource from training artifact...')
-    create_model(model_name, container, event)
+    create_model(container, event)
 
     print('Creating endpoint configuration...')
     endpoint_config_name = '{}{}-{}-{}{}-cfg'.format(
         app_client[:8], app_client[-12:], model_type, model_name[:8], model_name[-12:])
-    create_endpoint_config(endpoint_config_name, model_name, app_client)
+    create_endpoint_config(endpoint_config_name, event, model_instance)
 
     print('Creating new model endpoint...')
-    endpoint_name = endpoint_config_name.replace('cfg', 'ep')
+    endpoint_name = endpoint_config_name.replace('-cfg', '')
     create_endpoint(endpoint_name, endpoint_config_name)
-
-    event['status'] = 'Creating'
-    event['message'] = 'Started deploying model "{}" to endpoint'.format(
-        model_name)
 
     return event
 
 
-def create_model(name, container, event):
+def create_model(container, event):
     expr = re.search(r"^s3://([\w_\.-]+)/", event['chameleonStorage']['key'])
     try:
         primary_container = {
             'Image': container,
             'Environment': {
-                'bucket': os.environ.get('BUCKET_MODELS', expr[1]),
-                'model': event['clientModel']['modelName'],
-                'main': event['clientModel']['mainProgram'],
-                'prefix': '{}/'.format(event['clientModel']['prefix']).replace('//', '/')
+                'CHAMELEON_APP_LOGS_TABLE': os.environ.get('CHAMELEON_APP_LOGS_TABLE'),
+                'CHAMELEON_APP_MONITOR_TABLE': os.environ.get('CHAMELEON_APP_MONITOR_TABLE'),
+                'APP_CLIENT': event['appClient'],
+                'BUCKET': os.environ.get('BUCKET', expr[1]),
+                'MODEL': event['clientModel']['modelName'],
+                'MODEL_MAIN': event['clientModel']['mainProgram'],
+                'MODEL_PREFIX': '{}/'.format(event['clientModel']['prefix']).replace('//', '/')
             }
         }
 
-        if event['clientModel']['type'] not in SINGLE_MODELS:
-            primary_container['ModelDataUrl'] = event['chameleonStorage']['key']
-            primary_container['Mode'] = 'MultiModel'
-
         sagemaker.create_model(
-            ModelName=name, PrimaryContainer=primary_container, ExecutionRoleArn=EXECUTION_ROLE
+            ModelName=event['clientModel']['modelName'], PrimaryContainer=primary_container, ExecutionRoleArn=EXECUTION_ROLE
         )
     except Exception as e:
         print(e)
@@ -65,18 +61,26 @@ def create_model(name, container, event):
         raise(e)
 
 
-def create_endpoint_config(endpoint_config_name, model_name, app_client):
+def create_endpoint_config(endpoint_config_name, event, model_instance=INSTANCE_TYPE):
+    app_id = event['appClient']
+    model_name = event['clientModel']['modelName']
+    bucket = os.environ.get('BUCKET')
     try:
         sagemaker.create_endpoint_config(
             EndpointConfigName=endpoint_config_name,
-            ProductionVariants=[
-                {
-                    'VariantName': app_client,
-                    'ModelName': model_name,
-                    'InitialInstanceCount': 1,
-                    'InstanceType': INSTANCE_TYPE
-                }
-            ]
+            ProductionVariants=[{
+                'VariantName': app_id,
+                'ModelName': model_name,
+                'InitialInstanceCount': 1,
+                'InstanceType': model_instance or INSTANCE_TYPE
+            }],
+            DataCaptureConfig={
+                'EnableCapture': True,
+                'InitialSamplingPercentage': 100,
+                'DestinationS3Uri': 's3://{}/{}'.format(bucket, app_id),
+                'CaptureOptions': [{'CaptureMode': 'Input'}, {'CaptureMode': 'Output'}]
+            },
+            Tags=[{'Key': 'type', 'Value': event['clientModel']['type']}]
         )
     except Exception as e:
         print(e)

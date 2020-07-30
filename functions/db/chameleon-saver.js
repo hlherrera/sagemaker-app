@@ -36,20 +36,20 @@ const addModel = async (appId, model) => {
 module.exports.handler = async ({
   appClient,
   chameleonStorage: { key },
-  clientModel: { modelName, type, mainProgram, prefix },
+  clientModel,
 }) => {
   const [bucket] = key.replace('s3://', '').split('/');
   await addModel(appClient, {
-    name: modelName,
+    name: clientModel.modelName,
     bucket,
-    path: `${prefix}/`.replace('//', '/'),
-    fn: mainProgram,
-    type,
+    path: `${clientModel.prefix}/`.replace('//', '/'),
+    fn: clientModel.mainProgram,
+    type: clientModel.type,
   });
   return {
     appClient,
     chameleonStorage: { key },
     deployed: 0,
-    clientModel: { modelName, type, mainProgram, prefix },
+    clientModel,
   };
 };

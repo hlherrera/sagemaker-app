@@ -2,9 +2,17 @@ import os
 import pickle
 
 labels = ["setosa", "versicolor", "virginica"]
+model = None
 
 
-def inference(payload):
+def load_model(payload, context):
+    print('Loading model...')
+    model = pickle.load(open("model.pkl", "rb"))
+    return model
+
+
+def inference(model, payload, context):
+    print("Input parameters: {}".format(payload))
     measurements = [
         payload["sepal_length"],
         payload["sepal_width"],
@@ -12,7 +20,10 @@ def inference(payload):
         payload["petal_width"],
     ]
 
-    model = pickle.load(open("model.pkl", "rb"))
-
+    print("Predicting class...")
     labelId = model.predict([measurements])[0]
-    return labels[labelId]
+    print(
+        "Class predicted: index -> {} class-> {}".format(
+            labelId, labels[labelId])
+    )
+    return {"response": labels[labelId]}

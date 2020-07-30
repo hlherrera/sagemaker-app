@@ -8,4 +8,5 @@ ChameleonSaver:
       - functions/db/dynamo.db.js
       - functions/db/chameleon-saver.js
   handler: functions/db/chameleon-saver.handler
+  timeout: 30
   memorySize: 128

@@ -13,7 +13,7 @@ module.exports.handler = async function (props) {
     chameleonStorage: { key },
   } = props;
 
-  const bucketChameleon = process.env.BUCKET_MODELS;
+  const bucketChameleon = process.env.BUCKET;
   try {
     const localPath = await s3Download(
       accessKeyId,
