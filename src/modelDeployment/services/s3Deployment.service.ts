@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 
-import { AwsChameleonModel } from '../../client/domain/models';
+import { AwsChameleonModel, MODEL_STATUS } from '../../client/domain/models';
 
 import { DeploymentService } from './deployment.service';
+import { INSTANCE_TYPE } from './instanceTypes';
 
 @Injectable()
 export class S3DeploymentService implements DeploymentService {
@@ -12,7 +13,11 @@ export class S3DeploymentService implements DeploymentService {
     @Inject('SageMakerService') private sm: any,
   ) {}
 
-  async deployModel(model: AwsChameleonModel, appId?: string): Promise<any> {
+  async deployModel(
+    model: AwsChameleonModel,
+    appId?: string,
+    instanceType: INSTANCE_TYPE = INSTANCE_TYPE.S,
+  ): Promise<any> {
     const modelName = model.name ?? uuid();
     let response = {
       startDate: new Date(),
@@ -37,7 +42,8 @@ export class S3DeploymentService implements DeploymentService {
           type: model.type,
           prefix: `${appId}/${model.type}`,
           mainProgram: model.fn,
-          'instance-type': 'ml.m5.large',
+          instanceType,
+          status: MODEL_STATUS.PROVISSIONING,
         },
         chameleonStorage: {
           key: s3Path,

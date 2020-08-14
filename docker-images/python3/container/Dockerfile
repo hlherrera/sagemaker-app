@@ -15,6 +15,8 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
         ca-certificates \
         && rm -rf /var/lib/apt/lists/*
 
+RUN ln -s $(which python3) /usr/local/bin/python
+
 RUN curl -fSsL -O https://bootstrap.pypa.io/3.4/get-pip.py && \
         python3 get-pip.py && \
         rm get-pip.py
@@ -22,15 +24,14 @@ RUN curl -fSsL -O https://bootstrap.pypa.io/3.4/get-pip.py && \
 RUN pip install --upgrade pip
 
 RUN pip --no-cache-dir install \
-        numpy==1.18.5 \
-        pandas \
+        pymongo \
+        dnspython \
         flask \
+        flask-request-id-header \
         pillow \
         gevent \
         gunicorn \
-        boto3 \
-        colorama \
-        termcolor
+        boto3
 
 ENV PYTHONUNBUFFERED=TRUE
 ENV PYTHONDONTWRITEBYTECODE=TRUE

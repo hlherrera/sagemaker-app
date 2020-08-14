@@ -2,7 +2,16 @@ service: ml-services
 
 custom:
   stage: ${opt:stage, self:provider.stage}
-  bucket: 23people-model
+  JWT_SECRET: 123456
+  ml_eventbus_name: modelDeploy-${self:custom.stage}
+  ml_eventbus_arn: arn:aws:events:#{AWS::Region}:#{AWS::AccountId}:event-bus/${self:custom.ml_eventbus_name}
+  state_machine_model_deployment: arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:PythonModelDeployment
+  dotenv:
+    exclude:
+      - AWS_REGION
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - JWT_SECRET
 
 provider:
   name: aws
@@ -10,31 +19,35 @@ provider:
   runtime: nodejs12.x
   environment:
     # JWT conf
-    JWT_TTL_SECONDS: 600
-    JWT_SECRET: ${ssm:/classifier/document}
+    JWT_TTL_SECONDS: ${env:JWT_TTL_SECONDS}
+    JWT_SECRET: ${ssm:/chameleon/jwt-${self:custom.stage}}
 
     # Chameleon Bucket
-    BUCKET: ${self:custom.bucket}
+    BUCKET: ${env:BUCKET}
 
     # Chameleon clients db table
     CHAMELEON_PROJECTS_TABLE: chameleon-clients-${self:custom.stage}
     CHAMELEON_APP_LOGS_TABLE: chameleon-clients-logs-${self:custom.stage}
     CHAMELEON_APP_MONITOR_TABLE: chameleon-clients-monitor-${self:custom.stage}
 
-    # Chameleon cache table name
-    CACHE_TABLE_NAME: chameleon-cache
+    # MongoDB
+    MONGO_DB_URL: ${env:MONGO_DB_URL}
+    MONGO_DB_USER: ${env:MONGO_DB_USER}
+    MONGO_DB_PASS: ${env:MONGO_DB_PASS}
+    MONGO_DB_NAME: ${env:MONGO_DB_NAME}
 
     # Chameleon State Machine
-    STATE_MACHINE_MODEL_DEPLOY: "arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:PythonModelDeployment"
-    # STATE_MACHINE_MODEL_DEPLOY: ${cf:ml-services-${self:custom.stage}.SMDirectModelDeploymentArn}
+    STATE_MACHINE_MODEL_DEPLOY: ${self:custom.state_machine_model_deployment}
+    ML_EVENT_BUS: ${self:custom.ml_eventbus_name}
 
   iamRoleStatements: ${file(resources/roles.yml)}
 
 plugins:
   - serverless-plugin-warmup
   - serverless-pseudo-parameters
-  - serverless-step-functions
   - serverless-offline
+  - serverless-dotenv-plugin
+  - serverless-step-functions
 package:
   individually: true
   exclude:
@@ -54,6 +67,8 @@ functions:
   - ${file(resources/functions/chameleon-uploader.yml)}
   - ${file(resources/functions/chameleon-deploy.yml)}
   - ${file(resources/functions/chameleon-saver.yml)}
+  - ${file(resources/functions/chameleon-model-on-deploy.yml)}
+  - ${file(resources/functions/chameleon-model-on-error.yml)}
 
 stepFunctions:
   stateMachines:

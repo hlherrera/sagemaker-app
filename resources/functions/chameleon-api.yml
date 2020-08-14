@@ -2,6 +2,7 @@ API:
   name: "api-chameleon-${self:custom.stage}"
   handler: dist/index.handler
   timeout: 30
+  runtime: nodejs12.x
   warmup:
     enabled: false
   events:

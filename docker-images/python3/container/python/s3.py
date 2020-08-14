@@ -4,7 +4,7 @@ import tarfile
 import boto3
 
 
-def get_s3_files(bucket, prefix, model):
+def get_s3_file(bucket, prefix, model):
     files = []
     """Get the model object for this instance, loading it if it's not already loaded."""
     s3 = boto3.client('s3')
@@ -32,4 +32,4 @@ def get_s3_files(bucket, prefix, model):
             )
             files.append(dest)
 
-    return files
+    return files[0]

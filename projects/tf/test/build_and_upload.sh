@@ -52,13 +52,14 @@ aws sagemaker create-model \
 # You need to change the timestamp value with the output of deploy-model.sh
 ENDPOINT_CONFIG_NAME="$MODEL_NAME-config"
 INITIAL_INSTANCE_COUNT=1
-INSTANCE_TYPE="ml.t2.large"
+VARIANT_NAME="TF"
+INSTANCE_TYPE="ml.r5.large" # 2vCPU + 16GB RAM + 10Gb/s
 
 echo 'Creating enpoint config...'
 # It creates endpoint configuration.
 aws sagemaker create-endpoint-config \
    --endpoint-config-name $ENDPOINT_CONFIG_NAME \
-   --production-variants VariantName=TF,ModelName=$MODEL_NAME,InitialInstanceCount=$INITIAL_INSTANCE_COUNT,InstanceType=$INSTANCE_TYPE \
+   --production-variants VariantName=$VARIANT_NAME,ModelName=$MODEL_NAME,InitialInstanceCount=$INITIAL_INSTANCE_COUNT,InstanceType=$INSTANCE_TYPE \
    --data-capture-config EnableCapture=true,InitialSamplingPercentage=100,DestinationS3Uri=$MODEL_PATH,CaptureOptions=[{CaptureMode=Input},{CaptureMode=Output}]
 
 echo 'Creating enpoint...'
@@ -70,6 +71,25 @@ aws sagemaker create-endpoint \
 
 echo 'Waiting...'
 aws sagemaker wait endpoint-in-service --endpoint-name $ENDPOINT_NAME
+
+echo 'Configuring Endpoint Autoscaling...'
+aws application-autoscaling register-scalable-target \
+   --service-namespace sagemaker \
+   --resource-id endpoint/$ENDPOINT_NAME/variant/$VARIANT_NAME \
+   --scalable-dimension sagemaker:variant:DesiredInstanceCount \
+   --min-capacity 1 \
+   --max-capacity 3
+
+sed -e "s/#edp/$ENDPOINT_NAME/g" -e "s/#vrt/$VARIANT_NAME/g" config.json > in.json
+
+echo 'Defining Autoscaling Policy...'
+aws application-autoscaling put-scaling-policy \
+   --policy-name TF-CPU-Policy \
+   --policy-type TargetTrackingScaling \
+   --resource-id endpoint/$ENDPOINT_NAME/variant/$VARIANT_NAME \
+   --service-namespace sagemaker \
+   --scalable-dimension sagemaker:variant:DesiredInstanceCount \
+   --target-tracking-scaling-policy-configuration file://in.json
 
 echo 'Invoking enpoint...'
 # Invoke the endpoint

@@ -3,7 +3,7 @@ import re
 import boto3
 
 EXECUTION_ROLE = 'arn:aws:iam::657799620713:role/service-role/AmazonSageMaker-ExecutionRole-20190805T172704'
-INSTANCE_TYPE = 'ml.m5.large'
+INSTANCE_TYPE = 'ml.r5.large'
 SINGLE_MODELS = ['python3']
 
 sagemaker = boto3.client('sagemaker')
@@ -14,7 +14,7 @@ def deploy(event, context):
     app_client = event['appClient']
     model_name = event['clientModel']['modelName']
     model_type = event['clientModel']['type']
-    model_instance = event['clientModel']['instance-type']
+    model_instance = event['clientModel']['instanceType']
 
     repositories = ecr.describe_repositories()
     [r] = list(filter(lambda item: item['repositoryName'] == model_type,
@@ -30,8 +30,7 @@ def deploy(event, context):
     create_endpoint_config(endpoint_config_name, event, model_instance)
 
     print('Creating new model endpoint...')
-    endpoint_name = endpoint_config_name.replace('-cfg', '')
-    create_endpoint(endpoint_name, endpoint_config_name)
+    create_endpoint(endpoint_config_name, event)
 
     return event
 
@@ -43,7 +42,10 @@ def create_model(container, event):
             'Image': container,
             'Environment': {
                 'CHAMELEON_APP_LOGS_TABLE': os.environ.get('CHAMELEON_APP_LOGS_TABLE'),
-                'CHAMELEON_APP_MONITOR_TABLE': os.environ.get('CHAMELEON_APP_MONITOR_TABLE'),
+                'MONGO_DB_URL': os.environ.get('MONGO_DB_URL'),
+                'MONGO_DB_USER': os.environ.get('MONGO_DB_USER'),
+                'MONGO_DB_PASS': os.environ.get('MONGO_DB_PASS'),
+                'MONGO_DB_NAME': os.environ.get('MONGO_DB_NAME'),
                 'APP_CLIENT': event['appClient'],
                 'BUCKET': os.environ.get('BUCKET', expr[1]),
                 'MODEL': event['clientModel']['modelName'],
@@ -61,7 +63,7 @@ def create_model(container, event):
         raise(e)
 
 
-def create_endpoint_config(endpoint_config_name, event, model_instance=INSTANCE_TYPE):
+def create_endpoint_config(endpoint_config_name, event, model_instance):
     app_id = event['appClient']
     model_name = event['clientModel']['modelName']
     bucket = os.environ.get('BUCKET')
@@ -75,7 +77,7 @@ def create_endpoint_config(endpoint_config_name, event, model_instance=INSTANCE_
                 'InstanceType': model_instance or INSTANCE_TYPE
             }],
             DataCaptureConfig={
-                'EnableCapture': True,
+                'EnableCapture': False,  # @todo
                 'InitialSamplingPercentage': 100,
                 'DestinationS3Uri': 's3://{}/{}'.format(bucket, app_id),
                 'CaptureOptions': [{'CaptureMode': 'Input'}, {'CaptureMode': 'Output'}]
@@ -88,11 +90,18 @@ def create_endpoint_config(endpoint_config_name, event, model_instance=INSTANCE_
         raise(e)
 
 
-def create_endpoint(endpoint_name, config_name):
+def create_endpoint(endpoint_config_name, event):
+    print('Creating new model endpoint...')
+    endpoint_name = endpoint_config_name.replace('-cfg', '')
     try:
         sagemaker.create_endpoint(
             EndpointName=endpoint_name,
-            EndpointConfigName=config_name
+            EndpointConfigName=endpoint_config_name,
+            Tags=[{
+                "Key": "appClient", "Value": event['appClient']
+            }, {
+                "Key": "modelName", "Value": event['clientModel']['modelName']
+            }]
         )
     except Exception as e:
         print(e)

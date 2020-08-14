@@ -1,31 +1,40 @@
 name: PythonModelDeployment
 definition:
   Comment: "State Machine for AWS Multi Model Deployment from S3 Model storage"
-  StartAt: UploadModel
+  StartAt: saveModelIntoDB
   States:
+    # Save Model to DynamoDB Client App
+    saveModelIntoDB:
+      Type: Task
+      Resource:
+        Fn::GetAtt: [ChameleonSaver, Arn]
+      Next: CheckSaveData
+
+    # Check if model was saved
+    CheckSaveData:
+      Type: Choice
+      Choices:
+        - Variable: "$.error"
+          NumericEquals: 1
+          Next: FailedState
+      Default: UploadModel
+
     # Upload Model to Chameleon S3
     UploadModel:
       Type: Task
       ResultPath: "$"
       Resource:
         Fn::GetAtt: [ChameleonUploader, Arn]
-      Next: SaveModelToClientDB
+      Next: CheckUploaded
 
-    # Save Model to DynamoDB Client App
-    SaveModelToClientDB:
-      Type: Task
-      Resource:
-        Fn::GetAtt: [ChameleonSaver, Arn]
-      Next: CheckPreviousDeployed
-
-    # Check if the Model type has been deployed before
-    CheckPreviousDeployed:
+    # Check if model was uploaded
+    CheckUploaded:
       Type: Choice
       Choices:
-        - Variable: "$.deployed"
-          NumericEquals: 0
-          Next: DeployModel
-      Default: FinalState
+        - Variable: "$.error"
+          NumericEquals: 1
+          Next: FailedState
+      Default: DeployModel
 
     # Deploy Model returning Endpoint
     DeployModel:
@@ -35,5 +44,7 @@ definition:
       Next: FinalState
 
     FinalState:
-      Type: Pass
-      End: true
+      Type: Succeed
+
+    FailedState:
+      Type: Fail

@@ -1,2 +1,2 @@
 #!/bin/bash
-npm run build && SLS_DEBUG=* &&sls deploy
+SLS_DEBUG=* && node_modules/.bin/sls deploy

@@ -30,6 +30,7 @@ import {
   AwsChameleonModel,
   ChameleonProject,
   ChameleonModel,
+  MODEL_STATUS,
 } from '../client/domain';
 
 import { DataProject } from './dataProject.decorator';
@@ -104,15 +105,11 @@ export class ModelController {
     const model: ChameleonModel = body.__model;
     const endpointName = this.getEndpointName(project, model);
 
-    const status = await this.sm
-      .status(endpointName)
-      .then((response) => response.status === 'Ready')
-      .catch((err) => {
-        throw err;
-      });
-
-    if (!status) {
-      throw new HttpException('Model not found', HttpStatus.NOT_FOUND);
+    if (model.status !== MODEL_STATUS.IN_SERVICE) {
+      throw new HttpException(
+        'Model service is not Ready',
+        HttpStatus.NOT_ACCEPTABLE,
+      );
     }
 
     const { __model, ...rest } = body;
@@ -122,6 +119,7 @@ export class ModelController {
       prefix: model['path'],
       model: model.name,
       main: model.fn,
+      status: model.status,
       type: model.type,
     };
     const buffer = Buffer.from(JSON.stringify(params));
@@ -147,8 +145,7 @@ export class ModelController {
   @Get('deployment/:model')
   async modelStatus(@DataProject() project: ChameleonProject, @Req() req: any) {
     const model: ChameleonModel = req.body['__model'];
-    const endpointName = this.getEndpointName(project, model);
 
-    return this.sm.status(endpointName);
+    return { status: model.status };
   }
 }

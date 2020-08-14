@@ -14,7 +14,7 @@ def _get_labels():
     return imagenet_labels
 
 
-def load_model(payload, context):
+def load_model():
     print('Loading model...')
     mobilenet_save_path = os.path.join('.', "mobilenet/1/")
     model = tf.saved_model.load(mobilenet_save_path)

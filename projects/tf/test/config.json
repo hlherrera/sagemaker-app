@@ -1,0 +1,13 @@
+{
+  "TargetValue": 50,
+  "CustomizedMetricSpecification": {
+    "MetricName": "CPUUtilization",
+    "Namespace": "/aws/sagemaker/Endpoints",
+    "Dimensions": [
+      { "Name": "EndpointName", "Value": "#edp" },
+      { "Name": "VariantName", "Value": "#vrt" }
+    ],
+    "Statistic": "Average",
+    "Unit": "Percent"
+  }
+}

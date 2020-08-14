@@ -2,10 +2,9 @@ import os
 import pickle
 
 labels = ["setosa", "versicolor", "virginica"]
-model = None
 
 
-def load_model(payload, context):
+def load_model():
     print('Loading model...')
     model = pickle.load(open("model.pkl", "rb"))
     return model

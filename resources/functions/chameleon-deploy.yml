@@ -1,6 +1,8 @@
 ModelDeployment:
   name: fnModelDeployment-${self:custom.stage}
   runtime: python3.8
+  memorySize: 128
+  timeout: 30
   warmup:
     enabled: false
   package:
@@ -10,3 +12,5 @@ ModelDeployment:
     include:
       - functions/model/main.py
   handler: functions/model/main.deploy
+  layers:
+    - arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:layer:pymongo:1

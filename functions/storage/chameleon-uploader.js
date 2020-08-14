@@ -27,8 +27,9 @@ module.exports.handler = async function (props) {
       String(localPath),
       key.replace(`s3://${bucketChameleon}/`, ''),
     );
-    return props;
   } catch (err) {
-    throw err;
+    console.error(err);
+    props['error'] = 1;
   }
+  return props;
 };

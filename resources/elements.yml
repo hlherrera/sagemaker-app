@@ -1,8 +1,8 @@
 Resources:
-  BatchCacheTable:
+  ChameleonLogsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: "${self:provider.environment.CACHE_TABLE_NAME}"
+      TableName: "${self:provider.environment.CHAMELEON_APP_LOGS_TABLE}"
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
@@ -10,7 +10,51 @@ Resources:
         - AttributeName: id
           KeyType: HASH
       TimeToLiveSpecification:
-        AttributeName: createdAt
+        AttributeName: ttl
         Enabled: true
       # Set the capacity to auto-scale
       BillingMode: PAY_PER_REQUEST
+  ChameleonProjectTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: "${self:provider.environment.CHAMELEON_PROJECTS_TABLE}"
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      # Set the capacity to auto-scale
+      BillingMode: PAY_PER_REQUEST
+  ModelDeployEvent:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: modelDeploy-${self:custom.stage}
+  ModelDeployEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "Model Deploy EventRule"
+      EventBusName: modelDeploy-${self:custom.stage}
+      EventPattern:
+        source:
+          - "chameleon.modelDeployment"
+        detail-type:
+          - "Model Error"
+      State: "ENABLED"
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - "MlOnErrorLambdaFunction"
+              - "Arn"
+          Id: "on-error-lambda-target"
+  PermissionToInvokeMLOnErrorLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Ref: "MlOnErrorLambdaFunction"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn:
+        Fn::GetAtt:
+          - "ModelDeployEventRule"
+          - "Arn"

@@ -57,6 +57,17 @@
     - sagemaker:CreateEndpointConfig
     - sagemaker:CreateEndpoint
     - sagemaker:DescribeEndpoint
+    - sagemaker:DescribeEndpointConfig
+    - sagemaker:UpdateEndpointWeightsAndCapacities
     - sagemaker:ListEndpoints
     - sagemaker:InvokeEndpoint
+  Resource: "*"
+
+- Effect: "Allow"
+  Action:
+    - application-autoscaling:RegisterScalableTarget
+    - application-autoscaling:PutScalingPolicy
+    - cloudwatch:DescribeAlarms
+    - cloudwatch:PutMetricAlarm
+    - cloudwatch:DeleteAlarms
   Resource: "*"

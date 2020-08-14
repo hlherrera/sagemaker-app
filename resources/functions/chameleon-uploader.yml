@@ -1,5 +1,6 @@
 ChameleonUploader:
   name: fnChameleonUploader-${self:custom.stage}
+  runtime: nodejs12.x
   warmup:
     enabled: false
   package:
@@ -11,5 +12,4 @@ ChameleonUploader:
       - functions/storage/s3upload.js
       - functions/storage/chameleon-uploader.js
   handler: functions/storage/chameleon-uploader.handler
-  timeout: 120
-  memorySize: 128
+  timeout: 300

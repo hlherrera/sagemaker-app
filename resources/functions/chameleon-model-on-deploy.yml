@@ -1,0 +1,22 @@
+mlOnDeploy:
+  name: "fn-ML-onDeploy-${self:custom.stage}"
+  handler: functions/events/on_deploy.handler
+  runtime: python3.8
+  memorySize: 128
+  timeout: 30
+  package:
+    exclude:
+      - ./**
+      - node_modules/**
+    include:
+      - functions/events/on_deploy.py
+      - functions/db/chameleon_saver.py
+  events:
+    - eventBridge:
+        pattern:
+          source:
+            - aws.sagemaker
+          detail-type:
+            - SageMaker Endpoint State Change
+  layers:
+    - arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:layer:pymongo:1
