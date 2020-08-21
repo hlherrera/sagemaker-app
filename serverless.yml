@@ -1,4 +1,4 @@
-service: ml-services
+service: chameleon-api
 
 custom:
   stage: ${opt:stage, self:provider.stage}
