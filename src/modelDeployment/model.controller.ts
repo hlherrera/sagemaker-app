@@ -142,10 +142,34 @@ export class ModelController {
   })
   @UseGuards(AuthGuard('jwt'), AuthModelGuard)
   @UseInterceptors(ChameleonModelInterceptor)
-  @Get('deployment/:model')
+  @Get('deployment/:model/status')
   async modelStatus(@DataProject() project: ChameleonProject, @Req() req: any) {
     const model: ChameleonModel = req.body['__model'];
 
     return { status: model.status };
+  }
+
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'The status classification for a bucket path',
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/')
+  async getModels(@DataProject() project: ChameleonProject) {
+    return project.models;
+  }
+
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'The status classification for a bucket path',
+  })
+  @UseGuards(AuthGuard('jwt'), AuthModelGuard)
+  @UseInterceptors(ChameleonModelInterceptor)
+  @Get('/:model')
+  async getModel(@DataProject() project: ChameleonProject, @Req() req: any) {
+    const model: ChameleonModel = req.body['__model'];
+    return model;
   }
 }

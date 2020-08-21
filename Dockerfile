@@ -21,4 +21,4 @@ RUN npm run build
 # docker run --env-file ./.env doc sls deploy
 RUN chmod +x ./start.sh
 
-CMD ["./start.sh"]
+CMD ["./start.sh", "$STAGE"]

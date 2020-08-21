@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 
-name=$1
+MODEL=${1:-"googlesheet"}
+ROOT=$PWD
 
-if [ "$name" == "" ]
-then
-    echo "Usage: $0 <name-model>"
-    exit 1
-fi
+BUCKET="23people-documenta-dev"
+MODEL_PREFIX="ceres"
 
-cd src
+MODEL_PATH="s3://${BUCKET}/${MODEL_PREFIX}"
+MODEL_DATA_URL="s3://${BUCKET}/${MODEL_PREFIX}/${MODEL}.tar.gz"
 
-#compress all files(create tar.gz)
-tar -cf ${name}.tar.gz --exclude=${name}.tar.gz .
 
-#upload to s3
-aws s3 cp ${name}.tar.gz s3://23people-model/python/ 
+cd $ROOT/projects/ceres/src
+echo 'Compressing model...'
+tar -cf ${MODEL}.tar.gz --exclude=${MODEL}.tar.gz .
+
+echo 'Uploading model...'
+aws s3 cp "./${MODEL}.tar.gz" $MODEL_DATA_URL

@@ -10,9 +10,12 @@ SCOPES = ['https://spreadsheets.google.com/feeds',
 
 # The ID and range of a sample spreadsheet.
 SAMPLE_SPREADSHEET_ID = '1Vk12gCE8vN0J8FntS91bZBC3cIQmgtbv227ua_JloOU'
+creds = ServiceAccountCredentials.from_json_keyfile_name(
+    'credentials.json', SCOPES)
+client = gspread.authorize(creds)
 
 
-def inference(req):
+def inference(model, req, context):
     """Shows basic usage of the Sheets API.
     Prints values from a sample spreadsheet.
     """
@@ -27,9 +30,6 @@ def inference(req):
 
     table_row = pp_cell[1:]
 
-    creds = ServiceAccountCredentials.from_json_keyfile_name(
-        'credentials.json', SCOPES)
-    client = gspread.authorize(creds)
     sh = client.open_by_key(SAMPLE_SPREADSHEET_ID)
     sheet = sh.worksheet(sheetName)
 
