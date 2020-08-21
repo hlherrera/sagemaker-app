@@ -1,5 +1,3 @@
-import os
-import re
 import boto3
 import functions.db.chameleon_saver as db
 autoscaling = boto3.client('application-autoscaling')
@@ -19,7 +17,6 @@ MODEL_STATUS = {
 def handler(event, context):
 
     print('event: ', event)
-    autoscale_policy = {}
     endpoint = event['detail']['EndpointName']
     endpoint_config = event['detail']['EndpointConfigName']
     endpoint_status = event['detail']['EndpointStatus']
@@ -35,14 +32,14 @@ def handler(event, context):
 
     if endpoint_status == MODEL_STATUS_IN_SERVICE:
         app_id = event['detail']['Tags']['appClient']
-        autoscale_policy = autoscale(endpoint, app_id)
+        auto_scale(endpoint, app_id)
 
     return {
         'endpoint': endpoint
     }
 
 
-def autoscale(endpoint, app_id):
+def auto_scale(endpoint, app_id):
 
     autoscaling.register_scalable_target(
         ServiceNamespace='sagemaker',

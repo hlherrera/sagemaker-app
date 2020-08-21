@@ -1,6 +1,4 @@
 import flask
-import json
-import os
 from functools import wraps
 from db import monitor_prediction
 from error import send_error

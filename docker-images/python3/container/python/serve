@@ -64,10 +64,10 @@ def start_server():
                   b: sigterm_handler(nginx.pid, gunicorn.pid))
 
     # If either subprocess exits, so do we.
-    pids = set([nginx.pid, gunicorn.pid])
+    pid_list = {nginx.pid, gunicorn.pid}
     while True:
         pid, _ = os.wait()
-        if pid in pids:
+        if pid in pid_list:
             break
 
     sigterm_handler(nginx.pid, gunicorn.pid)

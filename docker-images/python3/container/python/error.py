@@ -30,12 +30,12 @@ def error_handler(error_type):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            retval = None
+            val = None
             try:
-                retval = func(*args, **kwargs)
+                val = func(*args, **kwargs)
             except Exception as e:
                 print(f"ERROR {error_type} : {func.__name__} -> {str(e)}")
                 send_error("{}:{}".format(error_type, func.__name__), str(e))
-            return retval
+            return val
         return wrapper
     return decorator

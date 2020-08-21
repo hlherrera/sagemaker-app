@@ -1,15 +1,14 @@
 import time
 import os
-import json
 import boto3
 from pymongo import MongoClient
 
 dynamodb = boto3.resource('dynamodb')
 TTL_SECONDS_6_MONTH = 6*730*3600
 
-host = os.environ.get("MONGO_DB_URL")
 user = os.environ.get("MONGO_DB_USER")
 password = os.environ.get("MONGO_DB_PASS")
+host = os.environ.get("MONGO_DB_URL")
 db = os.environ.get("MONGO_DB_NAME")
 uri = "mongodb+srv://{}:{}@{}/{}?retryWrites=true&w=majority".format(
     user, password, host, db

@@ -7,9 +7,8 @@ from botocore.exceptions import ClientError
 TTL_SECONDS_6_MONTH = 6*730*3600
 
 dynamodb = boto3.resource('dynamodb')
-
-host = os.environ.get("MONGO_DB_URL")
 user = os.environ.get("MONGO_DB_USER")
+host = os.environ.get("MONGO_DB_URL")
 password = os.environ.get("MONGO_DB_PASS")
 db = os.environ.get("MONGO_DB_NAME")
 uri = "mongodb+srv://{}:{}@{}/{}?retryWrites=true&w=majority".format(

@@ -1,5 +1,3 @@
-import os
-import re
 import boto3
 import functions.db.chameleon_saver as db
 autoscaling = boto3.client('application-autoscaling')

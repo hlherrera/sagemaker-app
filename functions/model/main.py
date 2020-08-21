@@ -55,12 +55,14 @@ def create_model(container, event):
         }
 
         sagemaker.create_model(
-            ModelName=event['clientModel']['modelName'], PrimaryContainer=primary_container, ExecutionRoleArn=EXECUTION_ROLE
+            ModelName=event['clientModel']['modelName'],
+            PrimaryContainer=primary_container,
+            ExecutionRoleArn=EXECUTION_ROLE
         )
     except Exception as e:
         print(e)
         print('Unable to create model.')
-        raise(e)
+        raise e
 
 
 def create_endpoint_config(endpoint_config_name, event, model_instance):
@@ -87,7 +89,7 @@ def create_endpoint_config(endpoint_config_name, event, model_instance):
     except Exception as e:
         print(e)
         print('Unable to create endpoint configuration.')
-        raise(e)
+        raise e
 
 
 def create_endpoint(endpoint_config_name, event):
@@ -106,7 +108,7 @@ def create_endpoint(endpoint_config_name, event):
     except Exception as e:
         print(e)
         print('Unable to create endpoint.')
-        raise(e)
+        raise e
 
 
 def wait_endpoint(endpoint_name):
@@ -121,4 +123,4 @@ def wait_endpoint(endpoint_name):
         )
     except Exception as e:
         print(e)
-        raise(e)
+        raise e

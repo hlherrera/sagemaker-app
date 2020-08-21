@@ -27,16 +27,16 @@ app = flask.Flask(__name__)
 @app.route('/ping', methods=['GET'])
 def ping():
     status = 200
-    vars = {
+    variables = {
         "bucket": os.environ.get("BUCKET"),
         "model": os.environ.get("MODEL"),
         "prefix": os.environ.get("MODEL_PREFIX"),
         "main": os.environ.get("MODEL_MAIN"),
         "logsTable": os.environ.get("CHAMELEON_APP_LOGS_TABLE")
     }
-    print(vars)
+    print(variables)
     m_path = os.path.join(
-        '/opt/ml/model', os.path.join(vars['prefix'], vars['model']))
+        '/opt/ml/model', os.path.join(variables['prefix'], variables['model']))
     if not os.path.exists(m_path):
         status = 404
 

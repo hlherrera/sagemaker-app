@@ -3,16 +3,13 @@ import os
 import subprocess
 import sys
 from shutil import rmtree, unpack_archive
-import json
-import boto3
 import s3
 from db import put_app_log
 from error import error_handler
 from invoker import invoke
 
 
-prefix = '/opt/ml/'
-model_path = os.path.join(prefix, 'model')
+model_path = os.path.join('/opt/ml/', 'model')
 context = {}
 
 
@@ -57,7 +54,7 @@ class PythonInferenceService(object):
         prefix = os.environ.get("MODEL_PREFIX")
         model = os.environ.get("MODEL")
         main_program = os.environ.get("MODEL_MAIN")
-        appId = os.environ.get('APP_CLIENT', 'client-app')
+        app_id = os.environ.get('APP_CLIENT', 'client-app')
 
         cwd = os.getcwd()
         m_path = self.get_model(bucket, prefix, model)
@@ -72,7 +69,7 @@ class PythonInferenceService(object):
                 k: request['params'][k] for k in request['params']
             })
             print('Result: ', result)
-            print(f"Setting output log for custom handlers in app: {appId}")
+            print(f"Setting output log for custom handlers in app: {app_id}")
             put_app_log(request_id, output, elapsed_time, bool(result))
         else:
             result = invoke("{}.py".format(main_program), {})
