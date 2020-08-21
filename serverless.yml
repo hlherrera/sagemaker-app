@@ -1,11 +1,11 @@
 service: chameleon-api
 
 custom:
-  stage: ${opt:stage, self:provider.stage}
+  stage: ${env:STAGE, self:provider.stage}
   JWT_SECRET: 123456
   ml_eventbus_name: modelDeploy-${self:custom.stage}
   ml_eventbus_arn: arn:aws:events:#{AWS::Region}:#{AWS::AccountId}:event-bus/${self:custom.ml_eventbus_name}
-  state_machine_model_deployment: arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:PythonModelDeployment
+  state_machine_model_deployment: arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:${self:custom.stage}PythonModelDeployment
   dotenv:
     exclude:
       - AWS_REGION
@@ -15,7 +15,7 @@ custom:
 
 provider:
   name: aws
-  stage: ${opt:stage, 'dev'}
+  stage: ${env:STAGE, 'dev'}
   runtime: nodejs12.x
   environment:
     # JWT conf
@@ -26,9 +26,9 @@ provider:
     BUCKET: ${env:BUCKET}
 
     # Chameleon clients db table
-    CHAMELEON_PROJECTS_TABLE: chameleon-clients-${self:custom.stage}
-    CHAMELEON_APP_LOGS_TABLE: chameleon-clients-logs-${self:custom.stage}
-    CHAMELEON_APP_MONITOR_TABLE: chameleon-clients-monitor-${self:custom.stage}
+    CHAMELEON_PROJECTS_TABLE: ${env:CHAMELEON_PROJECTS_TABLE}
+    CHAMELEON_APP_LOGS_TABLE: ${env:CHAMELEON_APP_LOGS_TABLE}
+    CHAMELEON_APP_MONITOR_TABLE: ${env:CHAMELEON_APP_MONITOR_TABLE}
 
     # MongoDB
     MONGO_DB_URL: ${env:MONGO_DB_URL}
@@ -76,4 +76,3 @@ stepFunctions:
 
 resources:
   - ${file(resources/elements.yml)}
-  - ${file(resources/outputs.yml)}

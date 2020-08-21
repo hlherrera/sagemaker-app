@@ -1,4 +1,4 @@
-name: PythonModelDeployment
+name: ${self:custom.stage}PythonModelDeployment
 definition:
   Comment: "State Machine for AWS Multi Model Deployment from S3 Model storage"
   StartAt: saveModelIntoDB
@@ -47,4 +47,10 @@ definition:
       Type: Succeed
 
     FailedState:
+      Type: Task
+      Resource:
+        Fn::GetAtt: [mlOnError, Arn]
+      Next: Error
+
+    Error:
       Type: Fail

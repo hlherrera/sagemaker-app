@@ -1,6 +1,7 @@
 import os
 
 import gspread
+from gspread.models import Cell
 from oauth2client.service_account import ServiceAccountCredentials
 
 # If modifying these scopes, delete the file token.pickle.
@@ -10,9 +11,15 @@ SCOPES = ['https://spreadsheets.google.com/feeds',
 
 # The ID and range of a sample spreadsheet.
 SAMPLE_SPREADSHEET_ID = '1Vk12gCE8vN0J8FntS91bZBC3cIQmgtbv227ua_JloOU'
-creds = ServiceAccountCredentials.from_json_keyfile_name(
-    'credentials.json', SCOPES)
-client = gspread.authorize(creds)
+
+
+def load_model():
+    print('Loading model...')
+    creds = ServiceAccountCredentials.from_json_keyfile_name(
+        'credentials.json', SCOPES)
+    client = gspread.authorize(creds)
+    model = client.open_by_key(SAMPLE_SPREADSHEET_ID)
+    return model
 
 
 def inference(model, req, context):
@@ -30,23 +37,26 @@ def inference(model, req, context):
 
     table_row = pp_cell[1:]
 
-    sh = client.open_by_key(SAMPLE_SPREADSHEET_ID)
-    sheet = sh.worksheet(sheetName)
+    sheet = model.worksheet(sheetName)
 
     # update cells
-    sheet.update(pp_cell, float(pp_value))
-    sheet.update(etp_cell, float(etp_value))
-    sheet.update(cdc_cell, float(cdc_value))
-    sheet.update(pmp_cell, float(pmp_value))
-    sheet.update(da_cell, float(da_value))
-    sheet.update(cr_cell, float(cr_value))
+    cells = [
+        Cell.from_address(pp_cell, float(pp_value)),
+        Cell.from_address(etp_cell, float(etp_value)),
+        Cell.from_address(cdc_cell, float(cdc_value)),
+        Cell.from_address(pmp_cell, float(pmp_value)),
+        Cell.from_address(da_cell, float(da_value)),
+        Cell.from_address(cr_cell, float(cr_value))
+    ]
+
+    sheet.update_cells(cells)
 
     # outout
-    LR = sheet.acell('J{}'.format(table_row)).value
-    FR = sheet.acell('K{}'.format(table_row)).value
-    NR = sheet.acell('M19').value
+    lr = sheet.acell('J{}'.format(table_row)).value
+    fr = sheet.acell('K{}'.format(table_row)).value
+    nr = sheet.acell('M19').value
 
-    return {"lr": LR, "fr": FR, "nr": NR}
+    return {"lr": lr, "fr": fr, "nr": nr}
 
 
 if __name__ == '__main__':

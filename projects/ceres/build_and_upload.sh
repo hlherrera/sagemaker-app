@@ -3,7 +3,7 @@
 MODEL=${1:-"googlesheet"}
 ROOT=$PWD
 
-BUCKET="23people-documenta-dev"
+BUCKET="23people-model"
 MODEL_PREFIX="ceres"
 
 MODEL_PATH="s3://${BUCKET}/${MODEL_PREFIX}"

@@ -6,7 +6,7 @@ import importlib
 from functools import wraps
 from error import error_handler
 
-context = {}
+context = {'model': None}
 
 
 def protect_credentials(fn):
@@ -64,7 +64,8 @@ def invoke(inference_file, req):
 def load_model(mod, logs):
     global context
     if hasattr(mod, 'load_model'):
-        if 'model' in context:
+        print('Has model implemented')
+        if context['model'] is not None:
             print("Returning local cached model")
         else:
             with Capturing(["Function call: [load_model]"]) as output:

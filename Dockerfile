@@ -5,7 +5,7 @@ ENV NODE_ENV=development
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+#COPY package*.json ./
 COPY . .
 RUN rm -f node_modules
 RUN npm ci
@@ -21,4 +21,4 @@ RUN npm run build
 # docker run --env-file ./.env doc sls deploy
 RUN chmod +x ./start.sh
 
-CMD ["./start.sh", "$STAGE"]
+CMD ["./start.sh"]

@@ -9,9 +9,15 @@ export AWS_SECRET_ACCESS_KEY=uOvd85IlaxTMhFJAl8rncfYRydE55xW+7M4gQRdr
 
 export BUCKET=23people-model
 export APP_CLIENT=23p
-export MODEL=tf-model
-export MODEL_PREFIX=tf
-export MODEL_MAIN=inference
+export MODEL=googlesheet
+export MODEL_PREFIX=ceres
+export MODEL_MAIN=googlesheet
+
+#export BUCKET=23people-model
+#export APP_CLIENT=23p
+#export MODEL=tf-model
+#export MODEL_PREFIX=tf
+#export MODEL_MAIN=inference
 
 #tables
 export CHAMELEON_APP_LOGS_TABLE=chameleon-clients-logs-dev
