@@ -3,7 +3,7 @@ import re
 import boto3
 
 EXECUTION_ROLE = 'arn:aws:iam::657799620713:role/service-role/AmazonSageMaker-ExecutionRole-20190805T172704'
-INSTANCE_TYPE = 'ml.r5.large'
+INSTANCE_TYPE = 'ml.t2.medium'
 SINGLE_MODELS = ['python3']
 
 sagemaker = boto3.client('sagemaker')

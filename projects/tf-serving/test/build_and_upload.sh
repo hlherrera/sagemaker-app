@@ -19,7 +19,7 @@ TFS_VERSION="2.2.0"
 PROCESSOR_TYPE="cpu"
 IMAGE="763104351884.dkr.ecr.$REGION.amazonaws.com/tensorflow-inference:$TFS_VERSION-$PROCESSOR_TYPE"
 INITIAL_INSTANCE_COUNT=1
-INSTANCE_TYPE="ml.c5d.xlarge"
+INSTANCE_TYPE="ml.t2.medium"
 
 # See the following document for more on SageMaker Roles:
 # https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-roles.html
