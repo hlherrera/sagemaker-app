@@ -161,7 +161,7 @@ export class ModelController {
   @UseGuards(AuthGuard('jwt'), AuthModelGuard)
   @UseInterceptors(ChameleonModelInterceptor)
   @Get('/:model')
-  async getModel(@DataProject() project: ChameleonProject, @Req() req: any) {
+  async getModel(@Req() req: any) {
     const model: ChameleonModel = req.body['__model'];
     return {
       fn: model.fn,
