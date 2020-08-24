@@ -1,4 +1,5 @@
 import os
+import traceback
 import json
 import boto3
 from functools import wraps
@@ -30,12 +31,17 @@ def error_handler(error_type):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            val = None
+            error, val = None, None
             try:
                 val = func(*args, **kwargs)
             except Exception as e:
-                print(f"ERROR {error_type} : {func.__name__} -> {str(e)}")
-                send_error("{}:{}".format(error_type, func.__name__), str(e))
-            return val
+                formatted_lines = traceback.format_exc().splitlines()
+                error = formatted_lines[5:]
+                print(
+                    f"ERROR {error_type} : {func.__name__} -> {traceback.format_exc()}"
+                )
+                send_error("{}:{}".format(error_type, func.__name__),
+                           " -> ".join(error))
+            return val, error
         return wrapper
     return decorator

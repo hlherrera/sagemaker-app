@@ -1,4 +1,3 @@
-
 import os
 import subprocess
 import sys
@@ -10,7 +9,6 @@ from invoker import invoke
 
 
 model_path = os.path.join('/opt/ml/', 'model')
-context = {}
 
 
 @error_handler('Dependencies')
@@ -45,7 +43,6 @@ class PythonInferenceService(object):
 
     @error_handler("Prediction Function")
     def predict(self, request, request_id=None):
-        global context
         print('Init request.')
         print('Request data: ', request)
         result = {}
@@ -57,7 +54,9 @@ class PythonInferenceService(object):
         app_id = os.environ.get('APP_CLIENT', 'client-app')
 
         cwd = os.getcwd()
-        m_path = self.get_model(bucket, prefix, model)
+        m_path, err = self.get_model(bucket, prefix, model)
+        if err is not None:
+            put_app_log(request_id, err)
         os.chdir(m_path)
         print("Moved to Function Working Directory ", os.getcwd())
 
@@ -77,4 +76,4 @@ class PythonInferenceService(object):
         os.chdir(cwd)
         print(f"Moving to initial Working Directory {os.getcwd()}")
         print('End request.')
-        return result or {}
+        return result

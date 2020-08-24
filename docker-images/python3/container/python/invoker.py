@@ -52,8 +52,11 @@ def invoke(inference_file, req):
         return {}, []
 
     start = int(time.time()*1000)
-    result = do_inference(mod, logs, req)
+    result, error = do_inference(mod, logs, req)
     end = int(time.time()*1000)
+
+    if error is not None:
+        logs.append(error)
 
     output_log = [item for sublist in logs for item in sublist]
     print('Log output: ', output_log)

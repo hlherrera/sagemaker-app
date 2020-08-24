@@ -16,7 +16,7 @@ uri = "mongodb+srv://{}:{}@{}/{}?retryWrites=true&w=majority".format(
 mongo_client = MongoClient(uri)
 
 
-def put_app_log(request_id, text, elapsed_time, status):
+def put_app_log(request_id, text, elapsed_time=0, status=False):
     app_id = os.environ.get('APP_CLIENT', 'client-app')
     model_id = os.environ.get("MODEL")
     tableName = os.environ.get('CHAMELEON_APP_LOGS_TABLE')

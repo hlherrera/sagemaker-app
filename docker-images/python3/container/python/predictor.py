@@ -56,7 +56,9 @@ def predict():
         return flask.Response(response='This predictor only supports JSON data', status=415, mimetype='text/plain')
 
     print(":::  REQUEST ID  :::", request_id)
-    response = PythonInferenceService().predict(data, request_id)
+    response, err = PythonInferenceService().predict(data, request_id)
+    if response is None:
+        return flask.Response(response='{"error": true}', status=400, mimetype='application/json'), request_id
 
     return flask.jsonify(response), request_id
 
