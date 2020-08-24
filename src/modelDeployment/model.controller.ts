@@ -145,7 +145,7 @@ export class ModelController {
   async getModels(@DataProject() project: ChameleonProject) {
     return project.models?.map((m) => ({
       fn: m.fn,
-      name: m.name,
+      id: m.name,
       displayName: m.displayName,
       status: m.status,
       statusMessage: m.statusMessage,
@@ -165,7 +165,7 @@ export class ModelController {
     const model: ChameleonModel = req.body['__model'];
     return {
       fn: model.fn,
-      name: model.name,
+      id: model.name,
       displayName: model.displayName,
       status: model.status,
       statusMessage: model.statusMessage,
