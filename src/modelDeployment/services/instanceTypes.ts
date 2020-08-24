@@ -5,5 +5,5 @@ export enum INSTANCE_TYPE {
   M = 'ml.c5.large',
   L = 'ml.m5.xlarge',
   XL = 'ml.m5.2xlarge',
-  XXL = 'ml.m54xlarge',
+  XXL = 'ml.m5.4xlarge',
 }

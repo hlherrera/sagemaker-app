@@ -16,7 +16,7 @@ export class S3DeploymentService implements DeploymentService {
   async deployModel(
     model: AwsChameleonModel,
     appId?: string,
-    instanceType: INSTANCE_TYPE = INSTANCE_TYPE.S,
+    instanceType: INSTANCE_TYPE = INSTANCE_TYPE.XS,
   ): Promise<any> {
     const modelName = model.name ?? uuid();
     let response = {
