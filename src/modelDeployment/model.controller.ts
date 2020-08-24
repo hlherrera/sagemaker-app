@@ -140,24 +140,17 @@ export class ModelController {
     status: 200,
     description: 'The status classification for a bucket path',
   })
-  @UseGuards(AuthGuard('jwt'), AuthModelGuard)
-  @UseInterceptors(ChameleonModelInterceptor)
-  @Get('deployment/:model/status')
-  async modelStatus(@DataProject() project: ChameleonProject, @Req() req: any) {
-    const model: ChameleonModel = req.body['__model'];
-
-    return { status: model.status };
-  }
-
-  @ApiBearerAuth()
-  @ApiResponse({
-    status: 200,
-    description: 'The status classification for a bucket path',
-  })
   @UseGuards(AuthGuard('jwt'))
   @Get('/')
   async getModels(@DataProject() project: ChameleonProject) {
-    return project.models;
+    return project.models?.map((m) => ({
+      fn: m.fn,
+      name: m.name,
+      displayName: m.displayName,
+      status: m.status,
+      statusMessage: m.statusMessage,
+      type: m.type,
+    }));
   }
 
   @ApiBearerAuth()
@@ -170,6 +163,13 @@ export class ModelController {
   @Get('/:model')
   async getModel(@DataProject() project: ChameleonProject, @Req() req: any) {
     const model: ChameleonModel = req.body['__model'];
-    return model;
+    return {
+      fn: model.fn,
+      name: model.name,
+      displayName: model.displayName,
+      status: model.status,
+      statusMessage: model.statusMessage,
+      type: model.type,
+    };
   }
 }
