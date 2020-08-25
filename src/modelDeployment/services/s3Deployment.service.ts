@@ -39,6 +39,7 @@ export class S3DeploymentService implements DeploymentService {
         },
         clientModel: {
           modelName,
+          displayName: model.displayName,
           type: model.type,
           prefix: `${appId}/${model.type}`,
           mainProgram: model.fn,
@@ -57,18 +58,6 @@ export class S3DeploymentService implements DeploymentService {
 
     return response;
   }
-
-  /* async status(idDeploy: string): Promise<any> {
-    const HEADER = 'arn:aws:states';
-    const arnStateMachine = process.env.STATE_MACHINE_MODEL_DEPLOY ?? '::';
-    const [, region, accountId, , stateMachine] = arnStateMachine
-      .replace(HEADER, '')
-      .split(':');
-    const executionArn = `${HEADER}:${region}:${accountId}:execution:${stateMachine}:${idDeploy}`;
-    const response = await this.stateMachine.status({ executionArn });
-
-    return response;
-  }*/
 
   async status(endpointName: string) {
     return this.sm.status(endpointName);

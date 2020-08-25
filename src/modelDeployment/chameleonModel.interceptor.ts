@@ -15,7 +15,7 @@ export class ChameleonModelInterceptor<T> implements NestInterceptor<T, any> {
     res.setHeader('Content-Type', 'application/json');
 
     const models: ChameleonModel[] = request.user?.app?.models ?? [];
-    const modelName = request.param('model') || request.body.modeName;
+    const modelName = request.params['model'] || request.body.modeName;
     const body = request.body || {};
     const [__model] = models.filter((m) => m.name === modelName);
 

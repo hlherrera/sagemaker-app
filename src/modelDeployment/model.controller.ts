@@ -129,7 +129,7 @@ export class ModelController {
       })
       .catch((err) => {
         this.logger.error(err);
-        return { Body: Buffer.from('') };
+        return { Body: Buffer.from('{"error": true}') };
       });
 
     return Buffer.from(response.Body).toString('utf8');

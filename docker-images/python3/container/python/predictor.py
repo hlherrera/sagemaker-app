@@ -58,7 +58,7 @@ def predict():
     print(":::  REQUEST ID  :::", request_id)
     response, err = PythonInferenceService().predict(data, request_id)
     if response is None:
-        return flask.Response(response='{"error": true}', status=400, mimetype='application/json'), request_id
+        return flask.Response(response='{"error": true}', status=200, mimetype='application/json'), request_id
 
     return flask.jsonify(response), request_id
 

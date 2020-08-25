@@ -26,6 +26,7 @@ def handler(event, ctx):
     project = add_model(app_id, {
         'name': chameleon_model['modelName'],
         'bucket': bucket,
+        'displayName': chameleon_model['displayName'],
         'status': chameleon_model['status'],
         'path': '{}/'.format(chameleon_model['prefix']).replace('//', '/'),
         'fn': chameleon_model['mainProgram'],
