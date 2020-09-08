@@ -1,16 +1,14 @@
-ModelDeployment:
-  name: fnModelDeployment-${self:custom.stage}
+modelDestroy:
+  name: "fn-CHAM-modelDestroy-${self:custom.stage}"
+  handler: functions/model/destroy.handler
   runtime: python3.8
   memorySize: 128
   timeout: 30
-  warmup:
-    enabled: false
   package:
     exclude:
       - ./**
       - node_modules/**
     include:
-      - functions/model/main.py
-  handler: functions/model/main.deploy
+      - functions/model/destroy.py
   layers:
     - arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:layer:pymongo:1

@@ -3,6 +3,7 @@ import { DynamoService } from '../aws/dynamo/dynamo.service';
 import { ChameleonProject } from './domain/chameleonProject';
 import { ChameleonModel } from './domain/models/chameleonModel';
 
+const TTL_SECONDS_MONTH = 730 * 3600;
 @Injectable()
 export class ChameleonProjectService {
   constructor(private readonly db: DynamoService) {}
@@ -87,5 +88,29 @@ export class ChameleonProjectService {
     };
 
     return this.db.update(params).then(() => model.name || '');
+  }
+
+  async deRegister(appId: string): Promise<boolean | Error> {
+    const params = {
+      TableName:
+        process.env.CHAMELEON_PROJECTS_TABLE || this.DEFAULT_TABLE_NAME,
+      Key: {
+        id: appId,
+      },
+      UpdateExpression:
+        'set updatedAt=:time, expireAt=:expire, disabled=:disabled',
+      ExpressionAttributeValues: {
+        ':time': Math.round(new Date().getTime() / 1000),
+        ':expire': Math.round(
+          new Date().getTime() / 1000 + 3 * TTL_SECONDS_MONTH,
+        ),
+        ':disabled': true,
+      },
+    };
+
+    return this.db.update(params).catch((err) => {
+      console.error(err);
+      return err;
+    });
   }
 }

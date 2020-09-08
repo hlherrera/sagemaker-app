@@ -1,5 +1,5 @@
 ChameleonSaver:
-  name: fnChameleonSaver-${self:custom.stage}
+  name: fn-CHAM-modelSaver-${self:custom.stage}
   package:
     exclude:
       - ./**

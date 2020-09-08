@@ -1,8 +1,6 @@
 ChameleonUploader:
-  name: fnChameleonUploader-${self:custom.stage}
+  name: fn-CHAM-modelUploader-${self:custom.stage}
   runtime: nodejs12.x
-  warmup:
-    enabled: false
   package:
     exclude:
       - ./**

@@ -24,34 +24,37 @@ Resources:
       KeySchema:
         - AttributeName: id
           KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: expireAt
+        Enabled: true
       # Set the capacity to auto-scale
       BillingMode: PAY_PER_REQUEST
   ModelDeployEvent:
     Type: AWS::Events::EventBus
     Properties:
-      Name: modelDeploy-${self:custom.stage}
+      Name: ${env:EVENT_BUS_NAME}
   ModelDeployEventRule:
     Type: AWS::Events::Rule
     Properties:
       Description: "Model Deploy EventRule"
-      EventBusName: modelDeploy-${self:custom.stage}
+      EventBusName: ${env:EVENT_BUS_NAME}
       EventPattern:
         source:
-          - "chameleon.modelDeployment"
+          - ${env:EVENT_BUS_SOURCE}
         detail-type:
-          - "Model Error"
+          - ${env:EVENT_BUS_TYPE}
       State: "ENABLED"
       Targets:
         - Arn:
             Fn::GetAtt:
-              - "MlOnErrorLambdaFunction"
+              - "ChameleonSageMakerErrorLambdaFunction"
               - "Arn"
           Id: "on-error-lambda-target"
   PermissionToInvokeMLOnErrorLambda:
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName:
-        Ref: "MlOnErrorLambdaFunction"
+        Ref: "ChameleonSageMakerErrorLambdaFunction"
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
       SourceArn:

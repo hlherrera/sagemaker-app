@@ -12,6 +12,7 @@ import {
   Body,
   Get,
   Req,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -115,11 +116,8 @@ export class ModelController {
     const { __model, ...rest } = body;
     const params = {
       params: { ...rest },
-      bucket: model['bucket'],
-      prefix: model['path'],
       model: model.name,
       main: model.fn,
-      status: model.status,
       type: model.type,
     };
     const buffer = Buffer.from(JSON.stringify(params));
@@ -129,7 +127,7 @@ export class ModelController {
       })
       .catch((err) => {
         this.logger.error(err);
-        return { Body: Buffer.from('{"error": true}') };
+        throw new HttpException('Invalid params', HttpStatus.BAD_REQUEST);
       });
 
     return Buffer.from(response.Body).toString('utf8');
@@ -171,5 +169,23 @@ export class ModelController {
       statusMessage: model.statusMessage,
       type: model.type,
     };
+  }
+
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Delete a model',
+  })
+  @UseGuards(AuthGuard('jwt'), AuthModelGuard)
+  @UseInterceptors(ChameleonModelInterceptor)
+  @Delete('/:model')
+  async deleteModel(
+    @DataProject() project: ChameleonProject,
+    @Body() body: any,
+  ) {
+    const model: ChameleonModel = body.__model;
+    const endpointName = this.getEndpointName(project, model);
+    const result = this.sm.delete(`${model.name}`, endpointName);
+    return { success: result };
   }
 }

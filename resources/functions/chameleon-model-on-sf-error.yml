@@ -1,0 +1,25 @@
+chameleonStepFunctionError:
+  name: "fn-CHAM-SF-onError-${self:custom.stage}"
+  handler: functions/events/stepfunction/on_error.handler
+  runtime: python3.8
+  memorySize: 128
+  timeout: 30
+  package:
+    exclude:
+      - ./**
+      - node_modules/**
+    include:
+      - functions/events/stepfunction/on_error.py
+      - functions/db/chameleon_saver.py
+  events:
+    - eventBridge:
+        pattern:
+          source:
+            - aws.states
+          detail-type:
+            - Step Functions Execution Status Change
+          detail:
+            stateMachineArn:
+              - "${self:custom.state_machine_model_deployment}"
+  layers:
+    - arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:layer:pymongo:1

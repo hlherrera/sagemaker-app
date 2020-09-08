@@ -60,34 +60,6 @@ $ npm run deploy
 
 ## Options
 
-### Hot start
-
-See : https://serverless.com/blog/keep-your-lambdas-warm/
-
-These behavior can be fixed with the plugin serverless-plugin-warmup
-
-1 Install the plugin
-
-```
-$ npm install serverless-plugin-warmup --save-dev
-```
-
-2 Enable the plugin
-
-```
-plugins:
-  - '@hewmen/serverless-plugin-typescript'
-  - serverless-plugin-optimize
-  - serverless-offline
-  - serverless-plugin-warmup
-
-custom:
-  # Enable warmup on all functions (only for production and staging)
-  warmup:
-      - production
-      - staging
-```
-
 ### Use Swagger for development
 
 ```

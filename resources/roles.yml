@@ -53,6 +53,9 @@
 - Effect: "Allow"
   Action:
     - sagemaker:UpdateEndpoint
+    - sagemaker:DeleteEndpoint
+    - sagemaker:DeleteEndpointConfig
+    - sagemaker:DeleteModel
     - sagemaker:CreateModel
     - sagemaker:CreateEndpointConfig
     - sagemaker:CreateEndpoint

@@ -1,6 +1,6 @@
-mlOnDeploy:
-  name: "fn-ML-onDeploy-${self:custom.stage}"
-  handler: functions/events/on_deploy.handler
+chameleonOnDeploy:
+  name: "fn-CHAM-onDeploy-${self:custom.stage}"
+  handler: functions/events/sagemaker/on_deploy.handler
   runtime: python3.8
   memorySize: 128
   timeout: 30
@@ -9,7 +9,7 @@ mlOnDeploy:
       - ./**
       - node_modules/**
     include:
-      - functions/events/on_deploy.py
+      - functions/events/sagemaker/on_deploy.py
       - functions/db/chameleon_saver.py
   events:
     - eventBridge:

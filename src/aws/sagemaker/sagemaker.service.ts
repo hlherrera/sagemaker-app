@@ -63,4 +63,18 @@ export class SageMakerService {
       error: FailureReason,
     };
   }
+
+  async delete(modelName: string, endpointName: string) {
+    try {
+      await this.sm.deleteEndpoint({ EndpointName: endpointName }).promise();
+      await this.sm
+        .deleteEndpointConfig({ EndpointConfigName: `${endpointName}-cfg` })
+        .promise();
+      await this.sm.deleteModel({ ModelName: modelName }).promise();
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
+    return true;
+  }
 }

@@ -8,8 +8,10 @@ bus_event = boto3.client('events')
 
 
 def send_error(error_type, error_msg):
-    print('Sending to busEvent: {} the ERROR: {}',
-          os.environ.get('EVENT_BUS_NAME'), error_msg)
+    print(
+        'Sending to busEvent: {} the ERROR: {}'
+        .format(os.environ.get('EVENT_BUS_NAME'), error_msg)
+    )
     bus_event.put_events(
         Entries=[
             {

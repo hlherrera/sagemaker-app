@@ -1,6 +1,6 @@
-mlOnError:
-  name: "fn-ML-onError-${self:custom.stage}"
-  handler: functions/events/on_error.handler
+chameleonSageMakerError:
+  name: "fn-CHAM-SM-onError-${self:custom.stage}"
+  handler: functions/events/sagemaker/on_error.handler
   runtime: python3.8
   memorySize: 128
   timeout: 30
@@ -9,7 +9,7 @@ mlOnError:
       - ./**
       - node_modules/**
     include:
-      - functions/events/on_error.py
+      - functions/events/sagemaker/on_error.py
       - functions/db/chameleon_saver.py
   layers:
     - arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:layer:pymongo:1

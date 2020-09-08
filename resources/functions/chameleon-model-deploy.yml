@@ -1,0 +1,14 @@
+ModelDeployment:
+  name: fn-CHAM-modelDeploy-${self:custom.stage}
+  runtime: python3.8
+  memorySize: 128
+  timeout: 30
+  package:
+    exclude:
+      - ./**
+      - node_modules/**
+    include:
+      - functions/model/deploy.py
+  handler: functions/model/deploy.handler
+  layers:
+    - arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:layer:pymongo:1

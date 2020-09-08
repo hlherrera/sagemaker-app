@@ -17,6 +17,7 @@ export class S3DeploymentService implements DeploymentService {
     model: AwsChameleonModel,
     appId?: string,
     instanceType: INSTANCE_TYPE = INSTANCE_TYPE.XS,
+    isVolatile: 0 | 1 = 1,
   ): Promise<any> {
     const modelName = model.name ?? uuid();
     let response = {
@@ -51,6 +52,7 @@ export class S3DeploymentService implements DeploymentService {
           modelName,
         },
         appClient: appId,
+        isVolatile,
         deployed: 0,
       }),
       name: modelName,

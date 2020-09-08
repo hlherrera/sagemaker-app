@@ -3,8 +3,6 @@ API:
   handler: dist/index.handler
   timeout: 30
   runtime: nodejs12.x
-  warmup:
-    enabled: false
   events:
     - http:
         cors: true

@@ -2,10 +2,10 @@ service: chameleon-api
 
 custom:
   stage: ${env:STAGE, self:provider.stage}
-  JWT_SECRET: 123456
   ml_eventbus_name: modelDeploy-${self:custom.stage}
   ml_eventbus_arn: arn:aws:events:#{AWS::Region}:#{AWS::AccountId}:event-bus/${self:custom.ml_eventbus_name}
   state_machine_model_deployment: arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:${self:custom.stage}PythonModelDeployment
+  logRetentionInDays: 365
   dotenv:
     exclude:
       - AWS_REGION
@@ -43,13 +43,12 @@ provider:
   iamRoleStatements: ${file(resources/roles.yml)}
 
 plugins:
-  - serverless-plugin-warmup
   - serverless-pseudo-parameters
   - serverless-offline
   - serverless-dotenv-plugin
+  - serverless-plugin-log-retention
   - serverless-step-functions
 package:
-  individually: true
   exclude:
     - .git/**
     - src/**
@@ -65,10 +64,12 @@ package:
 functions:
   - ${file(resources/functions/chameleon-api.yml)}
   - ${file(resources/functions/chameleon-uploader.yml)}
-  - ${file(resources/functions/chameleon-deploy.yml)}
   - ${file(resources/functions/chameleon-saver.yml)}
+  - ${file(resources/functions/chameleon-model-deploy.yml)}
+  - ${file(resources/functions/chameleon-model-destroy.yml)}
   - ${file(resources/functions/chameleon-model-on-deploy.yml)}
   - ${file(resources/functions/chameleon-model-on-error.yml)}
+  - ${file(resources/functions/chameleon-model-on-sf-error.yml)}
 
 stepFunctions:
   stateMachines:

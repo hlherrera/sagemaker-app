@@ -41,6 +41,25 @@ definition:
       Type: Task
       Resource:
         Fn::GetAtt: [ModelDeployment, Arn]
+      Next: ChooseIfWait
+
+    ChooseIfWait:
+      Type: Choice
+      Choices:
+        - Variable: "$.isVolatile"
+          NumericEquals: 1
+          Next: TimeToLive
+      Default: FinalState
+
+    TimeToLive:
+      Type: "Wait"
+      Seconds: 4100
+      Next: "ModelDestroy"
+
+    ModelDestroy:
+      Type: Task
+      Resource:
+        Fn::GetAtt: [modelDestroy, Arn]
       Next: FinalState
 
     FinalState:
@@ -49,7 +68,7 @@ definition:
     FailedState:
       Type: Task
       Resource:
-        Fn::GetAtt: [mlOnError, Arn]
+        Fn::GetAtt: [chameleonSageMakerError, Arn]
       Next: Error
 
     Error:

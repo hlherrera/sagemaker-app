@@ -2,15 +2,13 @@ import os
 import re
 import boto3
 
-EXECUTION_ROLE = 'arn:aws:iam::657799620713:role/service-role/AmazonSageMaker-ExecutionRole-20190805T172704'
 INSTANCE_TYPE = 'ml.t2.medium'
-SINGLE_MODELS = ['python3']
 
 sagemaker = boto3.client('sagemaker')
 ecr = boto3.client('ecr')
 
 
-def deploy(event, context):
+def handler(event, context):
     app_client = event['appClient']
     model_name = event['clientModel']['modelName']
     model_type = event['clientModel']['type']
@@ -46,6 +44,9 @@ def create_model(container, event):
                 'MONGO_DB_USER': os.environ.get('MONGO_DB_USER'),
                 'MONGO_DB_PASS': os.environ.get('MONGO_DB_PASS'),
                 'MONGO_DB_NAME': os.environ.get('MONGO_DB_NAME'),
+                'EVENT_BUS_SOURCE': os.environ.get('EVENT_BUS_SOURCE'),
+                'EVENT_BUS_NAME': os.environ.get('EVENT_BUS_NAME'),
+                'EVENT_BUS_TYPE': os.environ.get('EVENT_BUS_TYPE'),
                 'APP_CLIENT': event['appClient'],
                 'BUCKET': os.environ.get('BUCKET', expr[1]),
                 'MODEL': event['clientModel']['modelName'],
@@ -57,7 +58,7 @@ def create_model(container, event):
         sagemaker.create_model(
             ModelName=event['clientModel']['modelName'],
             PrimaryContainer=primary_container,
-            ExecutionRoleArn=EXECUTION_ROLE
+            ExecutionRoleArn=os.environ.get('EXECUTION_ROLE'),
         )
     except Exception as e:
         print(e)
