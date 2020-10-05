@@ -6,9 +6,24 @@ Resources:
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
+        - AttributeName: model
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
       KeySchema:
-        - AttributeName: id
+        - AttributeName: model
           KeyType: HASH
+        - AttributeName: id
+          KeyType: RANGE
+      LocalSecondaryIndexes:
+        - IndexName: model-logs-index
+          KeySchema:
+            - AttributeName: model
+              KeyType: HASH
+            - AttributeName: timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
       TimeToLiveSpecification:
         AttributeName: ttl
         Enabled: true
