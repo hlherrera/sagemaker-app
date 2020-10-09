@@ -74,3 +74,8 @@
     - cloudwatch:PutMetricAlarm
     - cloudwatch:DeleteAlarms
   Resource: "*"
+
+- Effect: "Allow"
+  Action:
+    - events:*
+  Resource: "*"
