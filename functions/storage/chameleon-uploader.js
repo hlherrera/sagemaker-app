@@ -29,7 +29,7 @@ module.exports.handler = async function (props) {
     );
   } catch (err) {
     console.error(err);
-    props['error'] = 1;
+    props['error'] = err;
   }
   return props;
 };

@@ -32,9 +32,9 @@ definition:
       Type: Choice
       Choices:
         - Variable: "$.error"
-          NumericEquals: 1
-          Next: FailedState
-      Default: DeployModel
+          NumericEquals: 0
+          Next: DeployModel
+      Default: FailedState
 
     # Deploy Model returning Endpoint
     DeployModel:

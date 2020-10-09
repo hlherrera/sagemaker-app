@@ -32,7 +32,7 @@ def handler(event, ctx):
         'fn': chameleon_model['mainProgram'],
         'type': chameleon_model['type']
     })
-    event['error'] = 1 if project is None else 0
+    event['error'] = {"message":'Error initializing model in DB'} if project is None else 0
     return event
 
 
