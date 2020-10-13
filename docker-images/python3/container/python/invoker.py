@@ -14,13 +14,23 @@ def protect_credentials(fn):
     def wrapper(*args):
         secret = os.environ.get('AWS_SECRET_ACCESS_KEY')
         keyid = os.environ.get('AWS_ACCESS_KEY_ID')
+        mongo_pass = os.environ.get('MONGO_DB_PASS')
+        mongo_user = os.environ.get('MONGO_DB_USER')
+        mongo_db = os.environ.get('MONGO_DB_NAME')
         os.environ['AWS_SECRET_ACCESS_KEY'] = ''
         os.environ['AWS_ACCESS_KEY_ID'] = ''
+        os.environ['MONGO_DB_PASS'] = ''
+        os.environ['MONGO_DB_USER'] = ''
+        os.environ['MONGO_DB_NAME'] = ''
 
         response = fn(*args)
 
         os.environ['AWS_SECRET_ACCESS_KEY'] = secret or ''
         os.environ['AWS_ACCESS_KEY_ID'] = keyid or ''
+        os.environ['MONGO_DB_PASS'] = mongo_pass
+        os.environ['MONGO_DB_USER'] = mongo_user
+        os.environ['MONGO_DB_NAME'] = mongo_db
+
         return response
     return wrapper
 

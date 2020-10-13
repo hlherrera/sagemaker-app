@@ -76,3 +76,44 @@ Resources:
         Fn::GetAtt:
           - "ModelDeployEventRule"
           - "Arn"
+  APIRestWebACL:
+    Type: "AWS::WAFv2::WebACL"
+    Properties:
+      Name: "${self:service}${self:custom.stage}WebACL"
+      Description: "WebACL to avoid DOS attack in ENV: ${self:custom.stage}"
+      Scope: REGIONAL
+      DefaultAction:
+        Allow: {}
+      VisibilityConfig:
+        CloudWatchMetricsEnabled: true
+        SampledRequestsEnabled: true
+        MetricName: "${self:service}${self:custom.stage}Metric"
+      Rules:
+        - Action:
+            Block: {}
+          Name: "${self:service}${self:custom.stage}IPRateBasedRule"
+          Priority: 1
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: false
+            SampledRequestsEnabled: false
+            MetricName: "${self:service}${self:custom.stage}IPRateBasedMetric"
+          Statement:
+            RateBasedStatement:
+              Limit: 500
+              AggregateKeyType: "IP"
+  ApiRestWebACLAssociation:
+    Type: AWS::WAFv2::WebACLAssociation
+    Properties:
+      ResourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:apigateway:${self:provider.region}::/restapis/"
+            - Ref: ApiGatewayRestApi
+            - "/stages/${self:custom.stage}"
+      WebACLArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:wafv2:#{AWS::Region}:#{AWS::AccountId}:regional/webacl/"
+            - Fn::Select: [0, Fn::Split: ["|", Ref: APIRestWebACL]]
+            - "/"
+            - Fn::Select: [1, Fn::Split: ["|", Ref: APIRestWebACL]]
