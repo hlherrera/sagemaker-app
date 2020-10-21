@@ -6,12 +6,13 @@ from pymongo import MongoClient
 dynamodb = boto3.resource('dynamodb')
 TTL_SECONDS_6_MONTH = 6*730*3600
 
+protocol = os.environ.get("MONGO_DB_PROTOCOL", 'mongodb+srv')
 user = os.environ.get("MONGO_DB_USER")
-password = os.environ.get("MONGO_DB_PASS")
 host = os.environ.get("MONGO_DB_URL")
+password = os.environ.get("MONGO_DB_PASS")
 db = os.environ.get("MONGO_DB_NAME")
-uri = "mongodb+srv://{}:{}@{}/{}?retryWrites=true&w=majority".format(
-    user, password, host, db
+uri = "{}://{}:{}@{}/{}?retryWrites=true&w=majority".format(
+    protocol, user, password, host, db
 )
 mongo_client = MongoClient(uri)
 

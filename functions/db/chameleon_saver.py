@@ -7,12 +7,13 @@ from botocore.exceptions import ClientError
 TTL_SECONDS_6_MONTH = 6*730*3600
 
 dynamodb = boto3.resource('dynamodb')
+protocol = os.environ.get("MONGO_DB_PROTOCOL", 'mongodb+srv')
 user = os.environ.get("MONGO_DB_USER")
 host = os.environ.get("MONGO_DB_URL")
 password = os.environ.get("MONGO_DB_PASS")
 db = os.environ.get("MONGO_DB_NAME")
-uri = "mongodb+srv://{}:{}@{}/{}?retryWrites=true&w=majority".format(
-    user, password, host, db
+uri = "{}://{}:{}@{}/{}?retryWrites=true".format(
+    protocol, user, password, host, db
 )
 mongo_client = MongoClient(uri)
 
@@ -32,7 +33,8 @@ def handler(event, ctx):
         'fn': chameleon_model['mainProgram'],
         'type': chameleon_model['type']
     })
-    event['error'] = {"message":'Error initializing model in DB'} if project is None else 0
+    event['error'] = {
+        "message": 'Error initializing model in DB'} if project is None else 0
     return event
 
 
@@ -55,9 +57,7 @@ def update_status_model(app_id, model_id, status, soft_delete=False, status_mess
 
     for m in models:
         if m['name'] == model_id:
-            m['status'] = status
-            if status_message is not None:
-                m['statusMessage'] = status_message
+            m['statusMessage'] = status_message
             if soft_delete:
                 m['active'] = 0
                 m['expireAt'] = int(time.time()) + TTL_SECONDS_6_MONTH

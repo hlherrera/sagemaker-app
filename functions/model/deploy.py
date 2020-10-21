@@ -40,6 +40,7 @@ def create_model(container, event):
             'Image': container,
             'Environment': {
                 'CHAMELEON_APP_LOGS_TABLE': os.environ.get('CHAMELEON_APP_LOGS_TABLE'),
+                'MONGO_DB_PROTOCOL': os.environ.get('MONGO_DB_PROTOCOL'),
                 'MONGO_DB_URL': os.environ.get('MONGO_DB_URL'),
                 'MONGO_DB_USER': os.environ.get('MONGO_DB_USER'),
                 'MONGO_DB_PASS': os.environ.get('MONGO_DB_PASS'),
