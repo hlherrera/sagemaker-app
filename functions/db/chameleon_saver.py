@@ -58,6 +58,7 @@ def update_status_model(app_id, model_id, status, soft_delete=False, status_mess
     for m in models:
         if m['name'] == model_id:
             m['statusMessage'] = status_message
+            m['status'] = status
             if soft_delete:
                 m['active'] = 0
                 m['expireAt'] = int(time.time()) + TTL_SECONDS_6_MONTH

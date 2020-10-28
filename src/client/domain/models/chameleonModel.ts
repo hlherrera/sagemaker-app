@@ -11,6 +11,11 @@ export enum MODEL_STATUS {
   IN_SERVICE = 'Ready',
   FAILED = 'Failed',
 }
+
+export enum MODEL_ONOFF {
+  DISABLED = 0,
+  ENABLED = 1,
+}
 export class ChameleonModel {
   @IsString()
   @ApiProperty({ description: 'Unique name of the model' })
@@ -36,6 +41,10 @@ export class ChameleonModel {
   @ApiPropertyOptional({ description: 'status of the model.' })
   status?: MODEL_STATUS;
 
+  @IsEnum(MODEL_ONOFF)
+  @ApiPropertyOptional({ description: 'status of the model.' })
+  active?: MODEL_ONOFF;
+
   @IsString()
   @ApiPropertyOptional({ description: 'status message.' })
   statusMessage: string;
@@ -51,5 +60,6 @@ export class ChameleonModel {
     this.type = requestBody.type;
     this.fn = requestBody.fn;
     this.status = MODEL_STATUS.TO_DEPLOY;
+    this.active = MODEL_ONOFF.ENABLED;
   }
 }

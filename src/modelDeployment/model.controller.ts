@@ -31,7 +31,8 @@ import {
   AwsChameleonModel,
   ChameleonProject,
   ChameleonModel,
-  MODEL_STATUS,
+  MODEL_ONOFF,
+  //MODEL_STATUS,
 } from '../client/domain';
 
 import { DataProject } from './dataProject.decorator';
@@ -106,7 +107,14 @@ export class ModelController {
     const model: ChameleonModel = body.__model;
     const endpointName = this.getEndpointName(project, model);
 
-    if (model.status !== MODEL_STATUS.IN_SERVICE) {
+    /*if (model.status?.toLowerCase() !== MODEL_STATUS.IN_SERVICE.toLowerCase()) {
+      throw new HttpException(
+        'Model service is not Ready',
+        HttpStatus.NOT_ACCEPTABLE,
+      );
+    }*/
+
+    if (model.active === MODEL_ONOFF.DISABLED) {
       throw new HttpException(
         'Model service is not Ready',
         HttpStatus.NOT_ACCEPTABLE,
