@@ -1,8 +1,9 @@
 import os
 import time
-from pymongo import MongoClient
+
 import boto3
 from botocore.exceptions import ClientError
+from pymongo import MongoClient
 
 TTL_SECONDS_6_MONTH = 6*730*3600
 
@@ -57,8 +58,9 @@ def update_status_model(app_id, model_id, status, soft_delete=False, status_mess
 
     for m in models:
         if m['name'] == model_id:
-            m['statusMessage'] = status_message
             m['status'] = status
+            if status_message:
+                m['statusMessage'] = status_message
             #m['active'] = int(status == "Ready")
             if soft_delete:
                 m['active'] = 0

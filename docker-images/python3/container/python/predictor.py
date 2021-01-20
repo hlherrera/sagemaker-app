@@ -1,6 +1,9 @@
 import os
-import flask
 from uuid import UUID, SafeUUID
+
+import flask
+
+from db import get_model_status
 from inference_service import PythonInferenceService
 from monitor import monitor
 
@@ -32,13 +35,21 @@ def ping():
         "model": os.environ.get("MODEL"),
         "prefix": os.environ.get("MODEL_PREFIX"),
         "main": os.environ.get("MODEL_MAIN"),
-        "logsTable": os.environ.get("CHAMELEON_APP_LOGS_TABLE")
+        "logsTable": os.environ.get("CHAMELEON_APP_LOGS_TABLE"),
+        "projectsTable": os.environ.get("CHAMELEON_PROJECTS_TABLE"),
     }
     print(variables)
+
+    db_model = get_model_status()
+    print(db_model)
+
     m_path = os.path.join(
         '/opt/ml/model', os.path.join(variables['prefix'], variables['model']))
     if not os.path.exists(m_path):
         status = 404
+
+    if not db_model:  # or db_model['status'].lower() == 'failed':
+        status = 400
 
     return flask.Response(response='{}\n'.format(m_path), status=status, mimetype='text/plain')
 
@@ -57,6 +68,7 @@ def predict():
 
     print(":::  REQUEST ID  :::", request_id)
     response, err = PythonInferenceService().predict(data, request_id)
+    print("Error in Inference:", err)
     if response is None:
         return flask.Response(response='{"error": true}', status=200, mimetype='application/json'), request_id
 

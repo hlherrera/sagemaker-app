@@ -2,11 +2,11 @@ import os
 import subprocess
 import sys
 from shutil import rmtree, unpack_archive
+
 import s3
 from db import put_app_log
 from error import error_handler
 from invoker import invoke
-
 
 model_path = os.path.join('/opt/ml/', 'model')
 
@@ -29,9 +29,21 @@ class PythonInferenceService(object):
             return m_path
 
         model_file = s3.get_s3_file(bucket, prefix, model)
-        print("Unpacking tar.gz to: ", m_path)
+        print(f"Unpacking file: {model_file} to: {m_path}")
         rmtree(m_path, ignore_errors=True)
-        unpack_archive(model_file, m_path)
+
+        gz = True
+        try:
+            unpack_archive(model_file, m_path, "gztar")
+        except:
+            gz = False
+            print("Trying with other format")
+
+        if not gz:
+            try:
+                unpack_archive(model_file, m_path, "zip")
+            except Exception as e:
+                print(e)
 
         cwd = os.getcwd()
         os.chdir(m_path)
@@ -57,9 +69,12 @@ class PythonInferenceService(object):
         m_path, err = self.get_model(bucket, prefix, model)
         if err is not None:
             put_app_log(request_id, err)
+            return None
+        #
         os.chdir(m_path)
         print("Moved to Function Working Directory ", os.getcwd())
-
+        elapsed_time = None
+        output = None
         if 'params' in request:
             print(
                 f"Calling handler functions implemented in script: '{main_program}' of model: '{model}'"
@@ -69,11 +84,12 @@ class PythonInferenceService(object):
             })
             print('Result: ', result)
             print(f"Setting output log for custom handlers in app: {app_id}")
-            put_app_log(request_id, output, elapsed_time, bool(result))
         else:
-            result = invoke("{}.py".format(main_program), {})
+            result, output, elapsed_time = invoke(
+                "{}.py".format(main_program), {})
         #
         os.chdir(cwd)
+        put_app_log(request_id, output, elapsed_time + 50, bool(result))
         print(f"Moving to initial Working Directory {os.getcwd()}")
         print('End request.')
         return result

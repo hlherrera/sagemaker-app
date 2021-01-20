@@ -1,5 +1,6 @@
 import os
 import re
+
 import boto3
 
 INSTANCE_TYPE = 'ml.t2.medium'
@@ -39,6 +40,7 @@ def create_model(container, event):
         primary_container = {
             'Image': container,
             'Environment': {
+                'CHAMELEON_PROJECTS_TABLE': os.environ.get('CHAMELEON_PROJECTS_TABLE'),
                 'CHAMELEON_APP_LOGS_TABLE': os.environ.get('CHAMELEON_APP_LOGS_TABLE'),
                 'MONGO_DB_PROTOCOL': os.environ.get('MONGO_DB_PROTOCOL'),
                 'MONGO_DB_URL': os.environ.get('MONGO_DB_URL'),

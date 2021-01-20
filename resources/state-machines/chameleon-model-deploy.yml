@@ -53,7 +53,7 @@ definition:
 
     TimeToLive:
       Type: "Wait"
-      Seconds: 900
+      Seconds: 4100
       Next: "ModelDestroy"
 
     ModelDestroy:

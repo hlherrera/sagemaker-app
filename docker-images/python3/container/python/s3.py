@@ -1,4 +1,5 @@
 import os
+
 import boto3
 
 
@@ -14,7 +15,7 @@ def get_s3_file(bucket, prefix, model):
 
     for file in response['Contents']:
         key = file['Key']
-        if key.endswith('.tar.gz'):
+        if key.endswith('.tar.gz') or key.endswith('.zip'):
             dest_folder = '{}/{}'.format('/opt/ml/model', prefix)
             dest = '{}/{}'.format('/opt/ml/model', key)
             os.makedirs(dest_folder, exist_ok=True)

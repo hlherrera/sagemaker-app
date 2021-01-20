@@ -1,10 +1,12 @@
-from io import StringIO
-import os
-import time
-import sys
 import importlib
+import os
+import sys
+import time
+import traceback
 from functools import wraps
-from error import error_handler
+from io import StringIO
+
+from error import error_handler, send_error
 
 context = {'model': None}
 
@@ -50,25 +52,33 @@ class Capturing(list):
 @protect_credentials
 def invoke(inference_file, req):
     logs = []
-
-    pathname, filename = os.path.split(inference_file)
-    sys.path.append(os.path.abspath(pathname))
-    modname = os.path.splitext(filename)[0]
-    mod = importlib.import_module(modname)
-
-    load_model(mod, logs)
-
-    if not bool(req):
-        return {}, []
-
+    result = None
     start = int(time.time()*1000)
-    result, error = do_inference(mod, logs, req)
-    end = int(time.time()*1000)
 
-    if error is not None:
-        logs.append(error)
+    try:
+        pathname, filename = os.path.split(inference_file)
+        sys.path.append(os.path.abspath(pathname))
+        modname = os.path.splitext(filename)[0]
+        mod = importlib.import_module(modname)
+        load_model(mod, logs)
+
+        if not bool(req):
+            end = int(time.time()*1000)
+            return {}, logs, end-start
+
+        result, err = do_inference(mod, logs, req)
+
+        if err is not None:
+            logs.append(err)
+
+    except Exception as e:
+        formatted_lines = traceback.format_exc().splitlines()
+        errors = formatted_lines[5:]
+        logs.append(errors)
+        send_error('Load Model', " -> ".join(errors))
 
     output_log = [item for sublist in logs for item in sublist]
+    end = int(time.time()*1000)
     print('Log output: ', output_log)
     return result, output_log, (end-start)
 

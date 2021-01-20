@@ -1,5 +1,6 @@
-import time
 import os
+import time
+
 import boto3
 from pymongo import MongoClient
 
@@ -23,20 +24,38 @@ def put_app_log(request_id, text, elapsed_time=0, status=False):
     tableName = os.environ.get('CHAMELEON_APP_LOGS_TABLE')
     table = dynamodb.Table(tableName)
 
-    response = table.put_item(
-        Item={
-            'id': request_id,
-            'app': app_id,
-            'model': model_id,
-            'text': text,
-            'dateZ': time.strftime("%d/%m/%Y %H:%M:%S%z"),
-            'timestamp': int(time.time()),
-            'status': status,
-            'duration': elapsed_time,
-            'ttl': int(time.time()) + TTL_SECONDS_6_MONTH
+    if request_id:
+        response = table.put_item(
+            Item={
+                'id': request_id,
+                'app': app_id,
+                'model': model_id,
+                'text': text,
+                'dateZ': time.strftime("%d/%m/%Y %H:%M:%S%z"),
+                'timestamp': int(time.time()),
+                'status': status,
+                'duration': elapsed_time,
+                'ttl': int(time.time()) + TTL_SECONDS_6_MONTH
+            }
+        )
+        return response
+    return False
+
+
+def get_model_status():
+    app_id = os.environ.get('APP_CLIENT', 'client-app')
+    model_name = os.environ.get("MODEL")
+    tableName = os.environ.get('CHAMELEON_PROJECTS_TABLE')
+    table = dynamodb.Table(tableName)
+
+    response = table.get_item(
+        Key={
+            'id': app_id
         }
     )
-    return response
+    models = response['Item']['models']
+    m = list(filter(lambda _m: _m['name'] == model_name, models))
+    return m.pop()
 
 
 def monitor_prediction(data):
